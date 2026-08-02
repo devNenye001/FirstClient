@@ -1018,12 +1018,15 @@ h3 {
     width: 86%;
   }
 
-  .dashboard-page {
+  .dashboard-page,
+  .interactive-dashboard {
+    grid-template-columns: 1fr !important;
     height: auto;
     overflow: visible;
   }
 
-  .dashboard-page aside {
+  .dashboard-page aside,
+  .sidebar-nav {
     align-items: center;
     display: flex;
     flex-direction: row;
@@ -1032,15 +1035,25 @@ h3 {
     padding: 14px 18px;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 100;
+    height: auto !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    width: 100%;
   }
 
-  .dashboard-page aside nav {
+  .dashboard-page aside nav,
+  .sidebar-nav nav {
     flex-direction: row;
     font-size: 14px;
     gap: 16px;
     margin: 0;
     white-space: nowrap;
+  }
+
+  .sidebar-nav .nav-item {
+    padding: 8px 12px;
+    font-size: 14px;
   }
 
   .logout {
@@ -1049,9 +1062,35 @@ h3 {
     margin: 0 0 0 auto;
   }
 
-  .dashboard-content {
+  .dashboard-content,
+  .dashboard-layout-content {
     overflow: visible;
     padding: 20px;
+  }
+
+  .dashboard-layout {
+    grid-template-columns: 1fr !important;
+    height: auto;
+    overflow: visible;
+  }
+
+  .directory-panel {
+    height: 500px;
+    border-right: 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .map-detail-panel {
+    height: 600px;
+  }
+
+  .map-view-wrapper {
+    height: 300px;
+    min-height: 300px;
+  }
+
+  .business-assessment-card {
+    max-height: 300px;
   }
 
   .dashboard-top {

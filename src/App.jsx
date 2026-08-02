@@ -15,7 +15,7 @@ import {
   FiList 
 } from 'react-icons/fi'
 
-const navLinks = ['Home', 'Features', 'Pricing', 'How It Works', 'FAQ']
+const navLinks = ['Home', 'Features', 'How It Works', 'FAQ']
 
 function Logo({ light = false, src }) {
   return (
@@ -225,8 +225,10 @@ function HomePage() {
           <strong>No guessing.</strong>
           <strong>No endless scrolling.</strong>
           <strong>No wasted hours.</strong>
+          <strong>Just qualified opportunities waiting for your next message.</strong>
+
         </div>
-        <p className="kinetic-caption">Just qualified opportunities waiting for your next message.</p>
+        
       </section>
 
       <section className="section faq-section reveal" id="faq">
