@@ -92,6 +92,104 @@ function Footer() {
   )
 }
 
+function SimplePage({ eyebrow, title, body, children }) {
+  return (
+    <main className="plain-page">
+      <Header />
+      <section className="simple-page reveal">
+        <p className="eyebrow">{eyebrow}</p>
+        <h1>{title}</h1>
+        <p>{body}</p>
+        {children}
+      </section>
+      <Footer />
+    </main>
+  )
+}
+
+function PrivacyPage() {
+  return (
+    <SimplePage
+      eyebrow="PRIVACY"
+      title="Privacy Policy"
+      body="FirstClient only asks for the information needed to create your account, improve search results, and keep your workspace useful. We do not sell your personal data."
+    >
+      <div className="simple-grid">
+        <article><h2>Account data</h2><p>Your email and profile details are used to sign you in and keep your saved opportunities connected to you.</p></article>
+        <article><h2>Search activity</h2><p>Searches and saved leads help FirstClient improve recommendations and show more relevant businesses.</p></article>
+        <article><h2>Contact</h2><p>For privacy requests, email firstClient@gmail.com and include the email linked to your account.</p></article>
+      </div>
+    </SimplePage>
+  )
+}
+
+function TermsPage() {
+  return (
+    <SimplePage
+      eyebrow="LEGAL"
+      title="Terms of Service"
+      body="Use FirstClient responsibly: verify business information before outreach, respect local laws, and avoid spammy or misleading messages."
+    >
+      <div className="simple-grid">
+        <article><h2>Your account</h2><p>You are responsible for keeping login details secure and for the activity that happens under your account.</p></article>
+        <article><h2>Business data</h2><p>Lead information may come from public sources and can change, so confirm details before contacting a business.</p></article>
+        <article><h2>Fair use</h2><p>Do not scrape, resell, overload, or misuse the platform in ways that harm FirstClient or other users.</p></article>
+      </div>
+    </SimplePage>
+  )
+}
+
+function ForgotPasswordPage() {
+  return (
+    <SimplePage
+      eyebrow="ACCOUNT"
+      title="Reset your password"
+      body="Enter the email connected to your account and we will help you get back in."
+    >
+      <form className="simple-form">
+        <label>Email Address<input placeholder="you@example.com" type="email" required /></label>
+        <Button href="/login">Back to Login</Button>
+      </form>
+    </SimplePage>
+  )
+}
+
+function DiscoverPage() {
+  return (
+    <SimplePage
+      eyebrow="DISCOVER"
+      title="Discover Leads"
+      body="Search by location, industry, and digital opportunity to find businesses that are ready for a better online presence."
+    >
+      <div className="simple-grid simple-grid--features">
+        <article><h2>Location search</h2><p>Find businesses in the city, state, or country you want to target.</p></article>
+        <article><h2>Opportunity signals</h2><p>Prioritize leads missing websites, ordering flows, booking tools, or clear contact paths.</p></article>
+        <article><h2>Outreach prep</h2><p>Review phone, email, and recommendations before sending your next message.</p></article>
+      </div>
+      <Button href="/dashboard">Open Dashboard</Button>
+    </SimplePage>
+  )
+}
+
+function SettingsPage() {
+  return (
+    <SimplePage
+      eyebrow="SETTINGS"
+      title="Workspace Settings"
+      body="Manage your profile preferences and keep your FirstClient workspace tuned for the type of clients you want."
+    >
+      <div className="settings-list">
+        {['Profile details', 'Search preferences', 'Notification settings'].map((item) => (
+          <label key={item}>
+            <span>{item}</span>
+            <input placeholder="Coming soon" disabled />
+          </label>
+        ))}
+      </div>
+    </SimplePage>
+  )
+}
+
 function HomePage() {
   return (
     <main className="home-page">
@@ -330,6 +428,11 @@ function App() {
   if (path === '/') return <HomePage />
   if (path === '/get-started' || path === '/login') return <LoginPage />
   if (path === '/dashboard') return <DashboardPage />
+  if (path === '/privacy') return <PrivacyPage />
+  if (path === '/terms') return <TermsPage />
+  if (path === '/forgot-password') return <ForgotPasswordPage />
+  if (path === '/discover') return <DiscoverPage />
+  if (path === '/settings') return <SettingsPage />
   return <NotFoundPage />
 }
 
