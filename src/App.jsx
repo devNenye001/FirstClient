@@ -6,74 +6,6 @@ import './App.css'
 
 const navLinks = ['Home', 'Features', 'Pricing', 'How It Works', 'FAQ']
 
-const processCards = [
-  {
-    title: 'Find businesses',
-    icon: (
-      <svg viewBox="0 0 24 24" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="11" cy="11" r="7" stroke="url(#blue-grad)" strokeWidth="2.5"/>
-        <path d="M20 20L16 16" stroke="url(#blue-grad)" strokeWidth="2.5" strokeLinecap="round"/>
-        <path d="M8 11H14" stroke="#55aee5" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M11 8V14" stroke="#55aee5" strokeWidth="2" strokeLinecap="round"/>
-        <defs>
-          <linearGradient id="blue-grad" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#55aee5"/>
-            <stop offset="1" stopColor="#1c75bc"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    )
-  },
-  {
-    title: 'Analyze opportunities',
-    icon: (
-      <svg viewBox="0 0 24 24" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="18" height="18" rx="2.5" stroke="url(#blue-grad-2)" strokeWidth="2.5"/>
-        <path d="M7 16V12" stroke="#55aee5" strokeWidth="2.5" strokeLinecap="round"/>
-        <path d="M12 16V8" stroke="#55aee5" strokeWidth="2.5" strokeLinecap="round"/>
-        <path d="M17 16V10" stroke="url(#blue-grad-2)" strokeWidth="2.5" strokeLinecap="round"/>
-        <circle cx="17" cy="6" r="1.5" fill="#55aee5"/>
-        <defs>
-          <linearGradient id="blue-grad-2" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#55aee5"/>
-            <stop offset="1" stopColor="#1c75bc"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    )
-  },
-  {
-    title: 'Reach out with confidence',
-    icon: (
-      <svg viewBox="0 0 24 24" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 2L11 13" stroke="url(#blue-grad-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="url(#blue-grad-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M18 6L14 10" stroke="#55aee5" strokeWidth="2" strokeLinecap="round"/>
-        <defs>
-          <linearGradient id="blue-grad-3" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#55aee5"/>
-            <stop offset="1" stopColor="#1c75bc"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    )
-  },
-  {
-    title: 'Win more clients',
-    icon: (
-      <svg viewBox="0 0 24 24" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#blue-grad-4)" stroke="#1c75bc" strokeWidth="1.5" strokeLinejoin="round"/>
-        <circle cx="12" cy="11" r="2.5" fill="#fff" opacity="0.35"/>
-        <defs>
-          <linearGradient id="blue-grad-4" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#55aee5"/>
-            <stop offset="1" stopColor="#1c75bc"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    )
-  }
-]
 
 function Logo({ light = false, src }) {
   return (
@@ -274,12 +206,12 @@ function HomePage() {
         <h2>The internet is full of clients. Most people just don’t know <span className="borel">where</span> to look.</h2>
         <p>Instead of spending hours jumping between Google Maps, Instagram, TikTok, Facebook, and business directories, FirstClient does the heavy lifting for you.</p>
         <div className="mini-cards">
-          {processCards.map((card) => (
-            <article key={card.title} className="process-card-item">
-              <div className="process-card-icon">{card.icon}</div>
-              <h3>{card.title}</h3>
-            </article>
-          ))}
+          {[
+            ['Find businesses', '/find-business.png'],
+            ['Analyze opportunities', '/analyze-opportunities.png'],
+            ['Reach out with confidence', '/reach-out-with-confidence.png'],
+            ['Win more clients', '/win-more-clients.png'],
+          ].map(([title, image]) => <article key={title}><h3>{title}</h3><img src={image} alt="" /></article>)}
         </div>
       </section>
 

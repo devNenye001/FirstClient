@@ -414,11 +414,10 @@ h3 {
 .kinetic-caption {
   animation: kineticText 3.8s 660ms ease-in-out infinite both;
   color: inherit;
-  font-size: clamp(16px, 3.2vw, 24px);
+  font-size: clamp(26px, 7vw, 68px);
   font-weight: 500;
   line-height: 1.35;
   margin-top: 24px;
-  opacity: 0.8;
 }
 
 .footer {
