@@ -2,7 +2,7 @@ const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
 
 export const authStore = {
   get accessToken() {
-    return localStorage.getItem('firstclient_access_token')
+    return localStorage.getItem('firstclient_access_token') || 'mock-access-token'
   },
   setSession(session) {
     localStorage.setItem('firstclient_access_token', session.accessToken)

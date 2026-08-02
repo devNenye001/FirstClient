@@ -1,18 +1,79 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, authStore } from './lib/api'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import './App.css'
 
 const navLinks = ['Home', 'Features', 'Pricing', 'How It Works', 'FAQ']
 
-const demoOpportunities = Array.from({ length: 8 }, (_, index) => ({
-  id: index + 1,
-  name: 'Mama Mia Restaurant',
-  location: 'Texas',
-  website: 'No Website',
-  phone: '+1 xxx xxx xxx',
-  email: 'hello@email.com',
-  recommendation: 'Food Ordering Web.',
-}))
+const processCards = [
+  {
+    title: 'Find businesses',
+    icon: (
+      <svg viewBox="0 0 24 24" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="11" cy="11" r="7" stroke="url(#blue-grad)" strokeWidth="2.5"/>
+        <path d="M20 20L16 16" stroke="url(#blue-grad)" strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M8 11H14" stroke="#55aee5" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M11 8V14" stroke="#55aee5" strokeWidth="2" strokeLinecap="round"/>
+        <defs>
+          <linearGradient id="blue-grad" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#55aee5"/>
+            <stop offset="1" stopColor="#1c75bc"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    )
+  },
+  {
+    title: 'Analyze opportunities',
+    icon: (
+      <svg viewBox="0 0 24 24" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="3" width="18" height="18" rx="2.5" stroke="url(#blue-grad-2)" strokeWidth="2.5"/>
+        <path d="M7 16V12" stroke="#55aee5" strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M12 16V8" stroke="#55aee5" strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M17 16V10" stroke="url(#blue-grad-2)" strokeWidth="2.5" strokeLinecap="round"/>
+        <circle cx="17" cy="6" r="1.5" fill="#55aee5"/>
+        <defs>
+          <linearGradient id="blue-grad-2" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#55aee5"/>
+            <stop offset="1" stopColor="#1c75bc"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    )
+  },
+  {
+    title: 'Reach out with confidence',
+    icon: (
+      <svg viewBox="0 0 24 24" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 2L11 13" stroke="url(#blue-grad-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="url(#blue-grad-3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M18 6L14 10" stroke="#55aee5" strokeWidth="2" strokeLinecap="round"/>
+        <defs>
+          <linearGradient id="blue-grad-3" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#55aee5"/>
+            <stop offset="1" stopColor="#1c75bc"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    )
+  },
+  {
+    title: 'Win more clients',
+    icon: (
+      <svg viewBox="0 0 24 24" width="80" height="80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#blue-grad-4)" stroke="#1c75bc" strokeWidth="1.5" strokeLinejoin="round"/>
+        <circle cx="12" cy="11" r="2.5" fill="#fff" opacity="0.35"/>
+        <defs>
+          <linearGradient id="blue-grad-4" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#55aee5"/>
+            <stop offset="1" stopColor="#1c75bc"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    )
+  }
+]
 
 function Logo({ light = false, src }) {
   return (
@@ -22,7 +83,7 @@ function Logo({ light = false, src }) {
   )
 }
 
-function Button({ children, href = '/get-started', variant = 'primary' }) {
+function Button({ children, href = '/dashboard', variant = 'primary' }) {
   return <a className={`button button--${variant}`} href={href}>{children}</a>
 }
 
@@ -148,7 +209,7 @@ function ForgotPasswordPage() {
     >
       <form className="simple-form">
         <label>Email Address<input placeholder="you@example.com" type="email" required /></label>
-        <Button href="/login">Back to Login</Button>
+        <Button href="/dashboard">Back to Dashboard</Button>
       </form>
     </SimplePage>
   )
@@ -209,20 +270,20 @@ function HomePage() {
         <img src="/landing-page-map.png" alt="World map" />
       </section>
 
-      <section className="section process-section reveal">
+      <section className="section process-section reveal" id="how-it-works">
         <h2>The internet is full of clients. Most people just don’t know <span className="borel">where</span> to look.</h2>
         <p>Instead of spending hours jumping between Google Maps, Instagram, TikTok, Facebook, and business directories, FirstClient does the heavy lifting for you.</p>
         <div className="mini-cards">
-          {[
-            ['Find businesses', '/find-business.png'],
-            ['Analyze opportunities', '/analyze-opportunities.png'],
-            ['Reach out with confidence', '/reach-out-with-confidence.png'],
-            ['Win more clients', '/win-more-clients.png'],
-          ].map(([title, image]) => <article key={title}><h3>{title}</h3><img src={image} alt="" /></article>)}
+          {processCards.map((card) => (
+            <article key={card.title} className="process-card-item">
+              <div className="process-card-icon">{card.icon}</div>
+              <h3>{card.title}</h3>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="section timeline-section reveal" id="how-it-works">
+      <section className="section timeline-section reveal">
         <h2>From searching to sending your first pitch in <span className="borel">minutes.</span></h2>
         <div className="timeline">
           {[
@@ -284,86 +345,185 @@ function HomePage() {
 }
 
 function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  async function handleSubmit(event) {
-    event.preventDefault()
-    setError('')
-    setLoading(true)
-    try {
-      const session = await api('/auth/register', { method: 'POST', body: JSON.stringify({ email, password, name: 'Rosemary' }) })
-      authStore.setSession(session)
-      window.location.href = '/dashboard'
-    } catch {
-      try {
-        const session = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })
-        authStore.setSession(session)
-        window.location.href = '/dashboard'
-      } catch (loginError) {
-        setError(loginError.message)
-      }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <main className="auth-page">
-      <section className="auth-visual">
-        <Logo light />
-        <img src="/login-picture.png" alt="Freelancer working on laptop" />
-      </section>
-      <form className="auth-form" aria-labelledby="auth-title" onSubmit={handleSubmit}>
-        <p className="eyebrow">GET STARTED</p>
-        <h1 id="auth-title">Welcome Back!</h1>
-        <button className="google-button" type="button"><span>G</span>Continue with Google</button>
-        <p className="or">or</p>
-        <label>Email Address<input placeholder="yourexample4@gmail.com" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-        <label>
-          Password
-          <span className="password-field">
-            <input placeholder="............" type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} minLength="8" required />
-            <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((value) => !value)}>
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" />
-                <circle cx="12" cy="12" r="3" />
-                {showPassword ? <path className="eye-slash" d="M4 4l16 16" /> : null}
-              </svg>
-            </button>
-          </span>
-        </label>
-        <div className="form-row"><span>Remember me</span><a href="/forgot-password">Forgot Password?</a></div>
-        {error ? <p className="form-error">{error}</p> : null}
-        <button className="button button--primary submit-button" type="submit" disabled={loading}>{loading ? 'Connecting...' : 'Sign Up'}</button>
-      </form>
-    </main>
-  )
+  return <ForgotPasswordPage />
 }
 
 function DashboardPage() {
-  const [items, setItems] = useState(demoOpportunities)
+  const [city, setCity] = useState('London')
+  const [country, setCountry] = useState('United Kingdom')
+  const [filter, setFilter] = useState('restaurants')
+  const [businesses, setBusinesses] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [searchError, setSearchError] = useState('')
+  
+  const [selectedBusiness, setSelectedBusiness] = useState(null)
+  const [recommendation, setRecommendation] = useState(null)
+  const [recLoading, setRecLoading] = useState(false)
+  const [copyFeedback, setCopyFeedback] = useState({ field: '', message: '' })
 
+  const mapContainerRef = useRef(null)
+  const mapRef = useRef(null)
+  const markersRef = useRef([])
+
+  // Trigger search on mount (default London search)
   useEffect(() => {
-    if (!authStore.accessToken) return
-    api('/businesses')
-      .then((businesses) => {
-        if (!businesses.length) return
-        setItems(businesses.map((business) => ({
-          id: business.id,
-          name: business.name,
-          location: business.address || 'Texas',
-          website: business.websiteExists ? 'Website Exists' : 'No Website',
-          phone: business.phone || '+1 xxx xxx xxx',
-          email: business.email || 'hello@email.com',
-          recommendation: business.websiteExists ? 'Food Ordering Web.' : 'Restaurant Website',
-        })))
-      })
-      .catch(() => setItems(demoOpportunities))
+    handleSearch()
   }, [])
+
+  // Initialize map once
+  useEffect(() => {
+    if (!mapRef.current && mapContainerRef.current) {
+      mapRef.current = L.map(mapContainerRef.current).setView([51.505, -0.09], 13)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapRef.current)
+    }
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+    }
+  }, [])
+
+  // Update map markers when businesses list updates
+  useEffect(() => {
+    if (!mapRef.current) return
+
+    // Clear old markers
+    markersRef.current.forEach(m => m.remove())
+    markersRef.current = []
+
+    if (businesses.length === 0) return
+
+    const latLns = []
+
+    // Custom SVG Pin Icon
+    const customPinIcon = L.divIcon({
+      html: `
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));">
+          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#55aee5"/>
+        </svg>
+      `,
+      className: 'custom-map-pin',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    })
+
+    businesses.forEach(b => {
+      if (b.latitude && b.longitude) {
+        const marker = L.marker([b.latitude, b.longitude], { icon: customPinIcon })
+          .addTo(mapRef.current)
+          .bindPopup(`
+            <div style="font-family: sans-serif; padding: 2px;">
+              <h4 style="margin: 0 0 4px 0; color: #202020;">${b.name}</h4>
+              <p style="margin: 0 0 6px 0; font-size: 11px; color: #666;">${b.category}</p>
+              <button id="pop-btn-${b.id}" style="background: #55aee5; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">Assess Lead</button>
+            </div>
+          `)
+        
+        marker.on('popupopen', () => {
+          const btn = document.getElementById(`pop-btn-${b.id}`)
+          if (btn) {
+            btn.onclick = () => {
+              handleSelectBusiness(b)
+            }
+          }
+        })
+        
+        marker.on('click', () => {
+          handleSelectBusiness(b)
+        })
+
+        markersRef.current.push(marker)
+        latLns.push([b.latitude, b.longitude])
+      }
+    })
+
+    if (latLns.length > 0) {
+      const bounds = L.latLngBounds(latLns)
+      mapRef.current.fitBounds(bounds, { padding: [30, 30] })
+    }
+  }, [businesses])
+
+  // Perform search
+  const handleSearch = (e) => {
+    if (e) e.preventDefault()
+    if (!city.trim() || !country.trim()) {
+      setSearchError('City and Country are required')
+      return
+    }
+
+    setSearchError('')
+    setLoading(true)
+    setSelectedBusiness(null)
+    setRecommendation(null)
+
+    api(`/search?city=${encodeURIComponent(city.trim())}&country=${encodeURIComponent(country.trim())}&category=${encodeURIComponent(filter)}`)
+      .then((data) => {
+        setBusinesses(data || [])
+      })
+      .catch((err) => {
+        console.error('Search failed:', err)
+        setSearchError(err.message || 'Search failed. Please try again.')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
+
+  // Select a business
+  const handleSelectBusiness = (business) => {
+    setSelectedBusiness(business)
+    setRecommendation(null)
+    
+    // Track viewed business in background
+    api(`/business/${business.id}`).catch(() => {})
+
+    // Center map on the selected pin
+    if (mapRef.current && business.latitude && business.longitude) {
+      mapRef.current.setView([business.latitude, business.longitude], 16)
+    }
+  }
+
+  // Fetch AI Recommendation Assessment
+  const handleGetRecommendation = () => {
+    if (!selectedBusiness) return
+    setRecLoading(true)
+    setRecommendation(null)
+
+    api('/recommendations', {
+      method: 'POST',
+      body: JSON.stringify({ businessId: selectedBusiness.id })
+    })
+      .then((data) => {
+        setRecommendation(data)
+      })
+      .catch((err) => {
+        console.error('Failed to generate assessment:', err)
+      })
+      .finally(() => {
+        setRecLoading(false)
+      })
+  }
+
+  // Handle Clipboard Copy & Analytics Tracking
+  const handleCopyText = (text, field) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setCopyFeedback({ field, message: 'Copied!' })
+        setTimeout(() => setCopyFeedback({ field: '', message: '' }), 2000)
+
+        // Track copy event in background
+        api(`/business/${selectedBusiness.id}/copy`, {
+          method: 'POST',
+          body: JSON.stringify({ copiedField: field })
+        }).catch(() => {})
+      })
+      .catch((err) => console.error('Failed to copy:', err))
+  }
 
   function logout(event) {
     event.preventDefault()
@@ -372,35 +532,207 @@ function DashboardPage() {
   }
 
   return (
-    <main className="dashboard-page">
-      <aside>
+    <main className="dashboard-page interactive-dashboard">
+      <aside className="sidebar-nav">
         <Logo light />
         <nav>
-          <a href="/dashboard">Dashboard</a>
-          <a href="/discover">Discover Leads</a>
-          <a href="/settings">Settings</a>
+          <a href="/dashboard" className="nav-item active">Dashboard</a>
+          <a href="/discover" className="nav-item">Discover Leads</a>
+          <a href="/settings" className="nav-item">Settings</a>
         </nav>
         <a className="logout" href="/" onClick={logout}>Logout</a>
       </aside>
-      <section className="dashboard-content">
-        <div className="dashboard-top">
-          <h1>Welcome Back, Rosemary 👋</h1>
-          <div className="search-pill">⌕ <span>Search Businesses</span></div>
-          <img src="/profile-pic.png" alt="Rosemary" />
+
+      <section className="dashboard-layout">
+        {/* Left column: Search and Directory list */}
+        <div className="directory-panel">
+          <header className="panel-header">
+            <h2>Lead Finder</h2>
+            <p>Uncover digital opportunities near you</p>
+          </header>
+
+          <form onSubmit={handleSearch} className="directory-search-form">
+            <div className="form-group-row">
+              <label>
+                <span>City</span>
+                <input 
+                  type="text" 
+                  value={city} 
+                  onChange={(e) => setCity(e.target.value)} 
+                  placeholder="e.g. London" 
+                  required 
+                />
+              </label>
+              <label>
+                <span>Country</span>
+                <input 
+                  type="text" 
+                  value={country} 
+                  onChange={(e) => setCountry(e.target.value)} 
+                  placeholder="e.g. United Kingdom" 
+                  required 
+                />
+              </label>
+            </div>
+            
+            <div className="form-group">
+              <label>
+                <span>Target Focus</span>
+                <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+                  <option value="restaurants">🍔 Mainly Restaurants & Cafes</option>
+                  <option value="all">🏢 All Nearby Businesses</option>
+                </select>
+              </label>
+            </div>
+
+            <button type="submit" className="search-btn" disabled={loading}>
+              {loading ? 'Searching...' : 'Find Opportunities ⌕'}
+            </button>
+
+            {searchError && <p className="search-error">{searchError}</p>}
+          </form>
+
+          <div className="directory-results">
+            <h3>Opportunities ({businesses.length})</h3>
+            
+            {loading ? (
+              <div className="loader-box"><div className="loader"></div></div>
+            ) : businesses.length === 0 ? (
+              <p className="empty-results">No leads loaded. Submit a city search to scan raw map data.</p>
+            ) : (
+              <div className="results-list">
+                {businesses.map((b) => (
+                  <article 
+                    key={b.id} 
+                    className={`business-item-card ${selectedBusiness?.id === b.id ? 'active' : ''}`}
+                    onClick={() => handleSelectBusiness(b)}
+                  >
+                    <div className="card-indicator" style={{ background: b.websiteExists ? '#e2f0fd' : '#fff3cd' }}>
+                      {b.websiteExists ? '🌐' : '⚠️'}
+                    </div>
+                    <div className="card-details">
+                      <h4>{b.name}</h4>
+                      <p className="b-cat">{b.category}</p>
+                      <p className="b-addr">📍 {b.address || 'Address not listed'}</p>
+                      <div className="card-tags">
+                        {!b.websiteExists && <span className="tag tag-warn">No Website</span>}
+                        {b.phone && <span className="tag">📞 Phone</span>}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <img className="map-strip" src="/dashboard-google-map.png" alt="Dallas map" />
-        <h2>Opportunities</h2>
-        <div className="opportunity-grid">
-          {items.map((item) => (
-            <article className="opportunity-card" key={item.id}>
-              <h3>{item.name}</h3>
-              <p>📍 {item.location}</p>
-              <p>🌐 {item.website}</p>
-              <p>☎️ {item.phone}</p>
-              <p>✉️ {item.email}</p>
-              <p>⭐ {item.recommendation}</p>
-            </article>
-          ))}
+
+        {/* Middle/Right: Map container and detailed assessment */}
+        <div className="map-detail-panel">
+          <div className="map-view-wrapper">
+            <div ref={mapContainerRef} className="interactive-leaflet-map" id="map"></div>
+          </div>
+
+          {/* Business Detailed Lead Assessment Card */}
+          {selectedBusiness ? (
+            <div className="business-assessment-card reveal is-visible">
+              <div className="assessment-header">
+                <div>
+                  <span className="eyebrow">{selectedBusiness.category.toUpperCase()}</span>
+                  <h3>{selectedBusiness.name}</h3>
+                  <p className="address-text">📍 {selectedBusiness.address}</p>
+                </div>
+                <div className="website-badge-section">
+                  {selectedBusiness.websiteExists ? (
+                    <a href={selectedBusiness.website} target="_blank" rel="noopener noreferrer" className="badge badge-site">
+                      🌐 Visit Website
+                    </a>
+                  ) : (
+                    <span className="badge badge-no-site">⚠️ Missing Website</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="contact-details-row">
+                <div className="contact-item">
+                  <span className="label">Phone</span>
+                  {selectedBusiness.phone ? (
+                    <div className="copy-action-box">
+                      <strong>{selectedBusiness.phone}</strong>
+                      <button 
+                        onClick={() => handleCopyText(selectedBusiness.phone, 'PHONE')} 
+                        className="copy-icon-btn"
+                        title="Copy Phone"
+                      >
+                        {copyFeedback.field === 'PHONE' ? '✓ Copied' : '🗎 Copy'}
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="not-available">Not available</span>
+                  )}
+                </div>
+                <div className="contact-item">
+                  <span className="label">Email</span>
+                  {selectedBusiness.email ? (
+                    <div className="copy-action-box">
+                      <strong>{selectedBusiness.email}</strong>
+                      <button 
+                        onClick={() => handleCopyText(selectedBusiness.email, 'EMAIL')} 
+                        className="copy-icon-btn"
+                        title="Copy Email"
+                      >
+                        {copyFeedback.field === 'EMAIL' ? '✓ Copied' : '🗎 Copy'}
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="not-available">Not available</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="ai-recommendation-section">
+                <h4>AI Opportunity Assessment</h4>
+                
+                {recLoading ? (
+                  <div className="loader-box-inline">
+                    <div className="loader"></div>
+                    <span>Generating Digital Assessment...</span>
+                  </div>
+                ) : recommendation ? (
+                  <div className="recommendation-content">
+                    <div className="score-pill-container">
+                      <div className="score-ring" style={{ 
+                        borderImage: `linear-gradient(to right, #55aee5, ${recommendation.opportunityScore > 75 ? '#28a745' : '#ffc107'}) 1`
+                      }}>
+                        <span className="score-num">{recommendation.opportunityScore}</span>
+                        <span className="score-lbl">Score</span>
+                      </div>
+                      <div className="service-rec">
+                        <span className="rec-eyebrow">RECOMMENDED SOLUTION</span>
+                        <h5>{recommendation.service}</h5>
+                      </div>
+                    </div>
+                    <div className="reasoning-box">
+                      <p><strong>Rationale:</strong> {recommendation.reason}</p>
+                      <small className="ai-model-tag">Generated via: {recommendation.model}</small>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="generate-cta-box">
+                    <p>Analyze this business's digital gaps and generate recommended freelance pitches.</p>
+                    <button onClick={handleGetRecommendation} className="button button--primary run-rec-btn">
+                      Generate Digital Assessment ⭐
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="select-lead-placeholder">
+              <span className="star-icon">★</span>
+              <h3>Select a Lead for Assessment</h3>
+              <p>Click on a map pin or directory card to view contact information, ratings, and execute the AI digital gap analysis.</p>
+            </div>
+          )}
         </div>
       </section>
     </main>
@@ -463,4 +795,3 @@ function useScrollReveal() {
     return () => observer.disconnect()
   }, [])
 }
-
