@@ -414,7 +414,7 @@ h3 {
 .kinetic-caption {
   animation: kineticText 3.8s 660ms ease-in-out infinite both;
   color: inherit;
-  font-size: clamp(26px, 7vw, 68px);
+  font-size: clamp(16px, 3.2vw, 28px);
   font-weight: 500;
   line-height: 1.35;
   margin-top: 24px;
@@ -441,9 +441,13 @@ h3 {
 }
 
 .footer__cta .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: 50px;
   min-width: 188px;
-  padding-top: 1px;
+  margin-bottom: 0;
+  padding-top: 0;
 }
 
 .footer__divider {
