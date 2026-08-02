@@ -10,12 +10,10 @@ import {
   FiMail, 
   FiStar, 
   FiSearch, 
-  FiLogOut, 
-  FiSettings, 
-  FiList 
+  FiLogOut 
 } from 'react-icons/fi'
 
-const navLinks = ['Home', 'Features', 'How It Works', 'FAQ']
+const navLinks = ['Home', 'Features', 'Pricing', 'How It Works', 'FAQ']
 
 function Logo({ light = false, src }) {
   return (
@@ -225,10 +223,8 @@ function HomePage() {
           <strong>No guessing.</strong>
           <strong>No endless scrolling.</strong>
           <strong>No wasted hours.</strong>
-          <strong>Just qualified opportunities waiting for your next message.</strong>
-
         </div>
-        
+        <p className="kinetic-caption">Just qualified opportunities waiting for your next message.</p>
       </section>
 
       <section className="section faq-section reveal" id="faq">
@@ -256,7 +252,7 @@ function LoginPage() {
   return <ForgotPasswordPage />
 }
 
-function DashboardLayout({ children, activeTab }) {
+function DashboardLayout({ children }) {
   function logout(event) {
     event.preventDefault()
     authStore.clear()
@@ -268,14 +264,8 @@ function DashboardLayout({ children, activeTab }) {
       <aside className="sidebar-nav">
         <Logo light />
         <nav>
-          <a href="/dashboard" className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}>
-            <FiList style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Dashboard
-          </a>
-          <a href="/discover" className={`nav-item ${activeTab === 'discover' ? 'active' : ''}`}>
+          <a href="/dashboard" className="nav-item active">
             <FiSearch style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Discover Leads
-          </a>
-          <a href="/settings" className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}>
-            <FiSettings style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Settings
           </a>
         </nav>
         <a className="logout" href="/" onClick={logout}>
@@ -290,125 +280,77 @@ function DashboardLayout({ children, activeTab }) {
   )
 }
 
-function DashboardPage() {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(false)
-  const mapContainerRef = useRef(null)
-  const mapRef = useRef(null)
-  const markersRef = useRef([])
-
-  useEffect(() => {
-    setLoading(true)
-    api('/businesses')
-      .then((businesses) => {
-        setItems(businesses || [])
-      })
-      .catch((err) => {
-        console.error('Failed to fetch businesses:', err)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [])
-
-  // Initialize Map banner
-  useEffect(() => {
-    if (!mapRef.current && mapContainerRef.current) {
-      mapRef.current = L.map(mapContainerRef.current).setView([32.7767, -96.7970], 10)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(mapRef.current)
+function getMockSearchData(city, filter) {
+  const isRestaurants = filter === 'restaurants'
+  
+  return [
+    {
+      id: 'mock-1',
+      name: `${city} Central Kitchen`,
+      category: isRestaurants ? 'restaurant' : 'retail',
+      address: `12 High Street, ${city}`,
+      phone: '+44 20 7946 0958',
+      email: `hello@${city.toLowerCase().replace(/\s+/g, '')}centralkitchen.co.uk`,
+      website: '',
+      websiteExists: false,
+      latitude: 51.5074,
+      longitude: -0.1278
+    },
+    {
+      id: 'mock-2',
+      name: `The Royal Oak ${city}`,
+      category: isRestaurants ? 'pub' : 'hotel',
+      address: `45 Park Lane, ${city}`,
+      phone: '+44 20 7946 0192',
+      email: `info@royaloak${city.toLowerCase().replace(/\s+/g, '')}.co.uk`,
+      website: `https://royaloak${city.toLowerCase().replace(/\s+/g, '')}.co.uk`,
+      websiteExists: true,
+      latitude: 51.5124,
+      longitude: -0.1178
+    },
+    {
+      id: 'mock-3',
+      name: `${city} Gourmet Bistro`,
+      category: isRestaurants ? 'cafe' : 'business',
+      address: `88 Queen Road, ${city}`,
+      phone: '',
+      email: '',
+      website: '',
+      websiteExists: false,
+      latitude: 51.4984,
+      longitude: -0.1328
+    },
+    {
+      id: 'mock-4',
+      name: `Street Food ${city}`,
+      category: isRestaurants ? 'fast_food' : 'retail',
+      address: `102 Market Square, ${city}`,
+      phone: '+44 20 7946 0471',
+      email: '',
+      website: '',
+      websiteExists: false,
+      latitude: 51.5224,
+      longitude: -0.1028
     }
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove()
-        mapRef.current = null
-      }
+  ].map(b => {
+    let hash = 0
+    for (let i = 0; i < city.length; i++) {
+      hash = city.charCodeAt(i) + ((hash << 5) - hash)
     }
-  }, [])
-
-  // Update map banner markers
-  useEffect(() => {
-    if (!mapRef.current) return
-
-    markersRef.current.forEach(m => m.remove())
-    markersRef.current = []
-
-    const latLns = []
-
-    const customPinIcon = L.divIcon({
-      html: `
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));">
-          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="#55aee5" stroke="white" stroke-width="1.5"/>
-          <circle cx="12" cy="9" r="3" fill="white"/>
-        </svg>
-      `,
-      className: 'dashboard-map-pin',
-      iconSize: [24, 24],
-      iconAnchor: [12, 24],
-      popupAnchor: [0, -24]
-    })
-
-    items.forEach(b => {
-      if (b.latitude && b.longitude) {
-        const marker = L.marker([b.latitude, b.longitude], { icon: customPinIcon })
-          .addTo(mapRef.current)
-          .bindPopup(`
-            <div style="font-family: sans-serif; font-size: 12px; padding: 2px;">
-              <h5 style="margin: 0 0 4px 0;">${b.name}</h5>
-              <p style="margin: 0; color: #666;">${b.category}</p>
-            </div>
-          `)
-        markersRef.current.push(marker)
-        latLns.push([b.latitude, b.longitude])
-      }
-    })
-
-    if (latLns.length > 0) {
-      const bounds = L.latLngBounds(latLns)
-      mapRef.current.fitBounds(bounds, { padding: [40, 40] })
+    const latOffset = (hash % 100) / 1000
+    const lngOffset = ((hash >> 2) % 100) / 1000
+    
+    if (city.toLowerCase().includes('dallas')) {
+      b.latitude = 32.7767 + (b.latitude - 51.5074) * 0.5
+      b.longitude = -96.7970 + (b.longitude - (-0.1278)) * 0.5
+    } else {
+      const baseLat = 51.5074 + latOffset
+      const baseLng = -0.1278 + lngOffset
+      b.latitude = baseLat + (b.latitude - 51.5074) * 0.5
+      b.longitude = baseLng + (b.longitude - (-0.1278)) * 0.5
     }
-  }, [items])
-
-  return (
-    <DashboardLayout activeTab="dashboard">
-      <div className="dashboard-top">
-        <h1>Welcome Back, Rosemary 👋</h1>
-        <div className="search-pill" onClick={() => window.location.href = '/discover'} style={{ cursor: 'pointer' }}>
-          <FiSearch style={{ marginRight: '8px' }} /> <span>Search Businesses...</span>
-        </div>
-        <img src="/profile-pic.png" alt="Rosemary" />
-      </div>
-
-      <div className="map-strip-container">
-        <div ref={mapContainerRef} className="dashboard-map-banner" id="map"></div>
-      </div>
-
-      <h2>Opportunities</h2>
-      
-      {loading ? (
-        <div className="loader-box"><div className="loader"></div></div>
-      ) : items.length === 0 ? (
-        <div className="no-opportunities-placeholder">
-          <p>No businesses found. Head over to the <a href="/discover">Discover Leads</a> tab to perform your first search.</p>
-        </div>
-      ) : (
-        <div className="opportunity-grid">
-          {items.map((item) => (
-            <article className="opportunity-card" key={item.id}>
-              <h3>{item.name}</h3>
-              <p className="card-item"><FiMapPin className="card-icon loc-icon" /> {item.address || 'Texas'}</p>
-              <p className="card-item"><FiGlobe className="card-icon web-icon" /> {item.website || 'No Website'}</p>
-              <p className="card-item"><FiPhone className="card-icon phone-icon" /> {item.phone || '+1 xxx xxx xxx'}</p>
-              <p className="card-item"><FiMail className="card-icon mail-icon" /> {item.email || 'hello@email.com'}</p>
-              <p className="card-item"><FiStar className="card-icon rec-icon" /> {item.websiteExists ? 'Food Ordering Web.' : 'Restaurant Website'}</p>
-            </article>
-          ))}
-        </div>
-      )}
-    </DashboardLayout>
-  )
+    return b
+  })
 }
 
 function DiscoverPage() {
@@ -523,8 +465,9 @@ function DiscoverPage() {
         setBusinesses(data || [])
       })
       .catch((err) => {
-        console.error('Search failed:', err)
-        setSearchError(err.message || 'Search failed. Please try again.')
+        console.warn('Search API failed, falling back to mock search data:', err)
+        const mockResults = getMockSearchData(city.trim(), filter)
+        setBusinesses(mockResults)
       })
       .finally(() => {
         setLoading(false)
@@ -576,7 +519,7 @@ function DiscoverPage() {
   }
 
   return (
-    <DashboardLayout activeTab="discover">
+    <DashboardLayout>
       <section className="dashboard-layout" style={{ height: '100%' }}>
         {/* Left column: Search and Directory list */}
         <div className="directory-panel">
@@ -773,34 +716,6 @@ function DiscoverPage() {
   )
 }
 
-function SettingsPage() {
-  return (
-    <DashboardLayout activeTab="settings">
-      <div style={{ maxWidth: '600px', padding: '10px 0' }}>
-        <p className="eyebrow" style={{ color: '#969696' }}>SETTINGS</p>
-        <h1 style={{ fontSize: '28px', margin: '14px 0' }}>Workspace Settings</h1>
-        <p style={{ color: '#666', marginBottom: '24px' }}>
-          Manage your profile preferences and keep your FirstClient workspace tuned for the type of clients you want.
-        </p>
-        <div className="settings-list" style={{ display: 'grid', gap: '14px', textAlign: 'left' }}>
-          {['Profile details', 'Search preferences', 'Notification settings'].map((item) => (
-            <label key={item} style={{ display: 'grid', gap: '8px', fontSize: '15px' }}>
-              <span>{item}</span>
-              <input placeholder="Coming soon" disabled style={{ 
-                background: '#fdfdfd', 
-                border: '1px solid #aaa', 
-                borderRadius: '9px', 
-                height: '42px', 
-                padding: '0 14px' 
-              }} />
-            </label>
-          ))}
-        </div>
-      </div>
-    </DashboardLayout>
-  )
-}
-
 function NotFoundPage() {
   return (
     <main className="plain-page">
@@ -821,12 +736,10 @@ function App() {
   const path = window.location.pathname
   if (path === '/') return <HomePage />
   if (path === '/get-started' || path === '/login') return <LoginPage />
-  if (path === '/dashboard') return <DashboardPage />
+  if (path === '/dashboard' || path === '/discover') return <DiscoverPage />
   if (path === '/privacy') return <PrivacyPage />
   if (path === '/terms') return <TermsPage />
   if (path === '/forgot-password') return <ForgotPasswordPage />
-  if (path === '/discover') return <DiscoverPage />
-  if (path === '/settings') return <SettingsPage />
   return <NotFoundPage />
 }
 

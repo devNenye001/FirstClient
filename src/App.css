@@ -1380,12 +1380,19 @@ h3 {
 }
 
 .form-group-row input, .form-group select {
-  height: 38px;
-  border: 1px solid #d2d2d2;
-  border-radius: 8px;
-  padding: 0 12px;
+  height: 42px;
+  border: 0;
+  background: #f4f4f4;
+  border-radius: 999px;
+  padding: 0 20px;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
+  color: #333;
+}
+
+.form-group-row input:focus, .form-group select:focus {
+  outline: none;
+  background: #e9e9e9;
 }
 
 .search-btn {
@@ -1394,7 +1401,7 @@ h3 {
   background: var(--blue);
   color: #fff;
   border: 0;
-  border-radius: 8px;
+  border-radius: 999px;
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
