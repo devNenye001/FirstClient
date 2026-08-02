@@ -261,19 +261,14 @@ function DashboardLayout({ children }) {
 
   return (
     <main className="dashboard-page interactive-dashboard">
-      <aside className="sidebar-nav">
-        <Logo light />
-        <nav>
-          <a href="/dashboard" className="nav-item active">
-            <FiSearch style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Discover Leads
-          </a>
-        </nav>
-        <a className="logout" href="/" onClick={logout}>
-          <FiLogOut style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Logout
+      <header className="dashboard-header">
+        <Logo light={false} />
+        <a className="logout-btn" href="/" onClick={logout}>
+          <FiLogOut style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Logout
         </a>
-      </aside>
+      </header>
 
-      <section className="dashboard-layout-content">
+      <section className="dashboard-layout-container">
         {children}
       </section>
     </main>
