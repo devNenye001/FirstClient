@@ -371,6 +371,14 @@ function DiscoverPage() {
     }
   }, [businesses])
 
+  useEffect(() => {
+    if (mapRef.current) {
+      setTimeout(() => {
+        mapRef.current.invalidateSize()
+      }, 250)
+    }
+  }, [businesses, selectedBusiness])
+
   const handleSearch = (e) => {
     if (e) e.preventDefault()
     if (!city.trim() || !country.trim()) {
