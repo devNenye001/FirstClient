@@ -224,7 +224,7 @@ function HomePage() {
           <strong>No endless scrolling.</strong>
           <strong>No wasted hours.</strong>
         </div>
-        <p className="kinetic-caption">Just qualified opportunities waiting for your next message.</p>
+        
       </section>
 
       <section className="section faq-section reveal" id="faq">
@@ -275,79 +275,6 @@ function DashboardLayout({ children }) {
   )
 }
 
-function getMockSearchData(city, filter) {
-  const isRestaurants = filter === 'restaurants'
-  
-  return [
-    {
-      id: 'mock-1',
-      name: `${city} Central Kitchen`,
-      category: isRestaurants ? 'restaurant' : 'retail',
-      address: `12 High Street, ${city}`,
-      phone: '+44 20 7946 0958',
-      email: `hello@${city.toLowerCase().replace(/\s+/g, '')}centralkitchen.co.uk`,
-      website: '',
-      websiteExists: false,
-      latitude: 51.5074,
-      longitude: -0.1278
-    },
-    {
-      id: 'mock-2',
-      name: `The Royal Oak ${city}`,
-      category: isRestaurants ? 'pub' : 'hotel',
-      address: `45 Park Lane, ${city}`,
-      phone: '+44 20 7946 0192',
-      email: `info@royaloak${city.toLowerCase().replace(/\s+/g, '')}.co.uk`,
-      website: `https://royaloak${city.toLowerCase().replace(/\s+/g, '')}.co.uk`,
-      websiteExists: true,
-      latitude: 51.5124,
-      longitude: -0.1178
-    },
-    {
-      id: 'mock-3',
-      name: `${city} Gourmet Bistro`,
-      category: isRestaurants ? 'cafe' : 'business',
-      address: `88 Queen Road, ${city}`,
-      phone: '',
-      email: '',
-      website: '',
-      websiteExists: false,
-      latitude: 51.4984,
-      longitude: -0.1328
-    },
-    {
-      id: 'mock-4',
-      name: `Street Food ${city}`,
-      category: isRestaurants ? 'fast_food' : 'retail',
-      address: `102 Market Square, ${city}`,
-      phone: '+44 20 7946 0471',
-      email: '',
-      website: '',
-      websiteExists: false,
-      latitude: 51.5224,
-      longitude: -0.1028
-    }
-  ].map(b => {
-    let hash = 0
-    for (let i = 0; i < city.length; i++) {
-      hash = city.charCodeAt(i) + ((hash << 5) - hash)
-    }
-    const latOffset = (hash % 100) / 1000
-    const lngOffset = ((hash >> 2) % 100) / 1000
-    
-    if (city.toLowerCase().includes('dallas')) {
-      b.latitude = 32.7767 + (b.latitude - 51.5074) * 0.5
-      b.longitude = -96.7970 + (b.longitude - (-0.1278)) * 0.5
-    } else {
-      const baseLat = 51.5074 + latOffset
-      const baseLng = -0.1278 + lngOffset
-      b.latitude = baseLat + (b.latitude - 51.5074) * 0.5
-      b.longitude = baseLng + (b.longitude - (-0.1278)) * 0.5
-    }
-    return b
-  })
-}
-
 function DiscoverPage() {
   const [city, setCity] = useState('London')
   const [country, setCountry] = useState('United Kingdom')
@@ -355,6 +282,7 @@ function DiscoverPage() {
   const [businesses, setBusinesses] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchError, setSearchError] = useState('')
+  const [hasSearched, setHasSearched] = useState(false)
   
   const [selectedBusiness, setSelectedBusiness] = useState(null)
   const [recommendation, setRecommendation] = useState(null)
@@ -454,15 +382,17 @@ function DiscoverPage() {
     setLoading(true)
     setSelectedBusiness(null)
     setRecommendation(null)
+    setHasSearched(false)
 
     api(`/search?city=${encodeURIComponent(city.trim())}&country=${encodeURIComponent(country.trim())}&category=${encodeURIComponent(filter)}`)
       .then((data) => {
         setBusinesses(data || [])
+        setHasSearched(true)
       })
       .catch((err) => {
-        console.warn('Search API failed, falling back to mock search data:', err)
-        const mockResults = getMockSearchData(city.trim(), filter)
-        setBusinesses(mockResults)
+        console.error('Search failed:', err)
+        setSearchError(err.message || 'Search failed. Please ensure the backend is running.')
+        setBusinesses([])
       })
       .finally(() => {
         setLoading(false)
@@ -515,8 +445,8 @@ function DiscoverPage() {
 
   return (
     <DashboardLayout>
-      <section className="dashboard-layout" style={{ height: '100%' }}>
-        {/* Left column: Search and Directory list */}
+      <section className="dashboard-layout">
+        {/* Search Panel (Column 1, Row 1) */}
         <div className="directory-panel">
           <header className="panel-header">
             <h2>Lead Finder</h2>
@@ -563,48 +493,51 @@ function DiscoverPage() {
 
             {searchError && <p className="search-error">{searchError}</p>}
           </form>
-
-          <div className="directory-results">
-            <h3>Opportunities ({businesses.length})</h3>
-            
-            {loading ? (
-              <div className="loader-box"><div className="loader"></div></div>
-            ) : businesses.length === 0 ? (
-              <p className="empty-results">No leads loaded. Submit a city search to scan raw map data.</p>
-            ) : (
-              <div className="results-list">
-                {businesses.map((b) => (
-                  <article 
-                    key={b.id} 
-                    className={`business-item-card ${selectedBusiness?.id === b.id ? 'active' : ''}`}
-                    onClick={() => handleSelectBusiness(b)}
-                  >
-                    <div className="card-indicator" style={{ background: b.websiteExists ? '#e2f0fd' : '#fff3cd' }}>
-                      {b.websiteExists ? <FiGlobe style={{ color: '#55aee5' }} /> : <FiMapPin style={{ color: '#ffc107' }} />}
-                    </div>
-                    <div className="card-details">
-                      <h4>{b.name}</h4>
-                      <p className="b-cat">{b.category}</p>
-                      <p className="b-addr">📍 {b.address || 'Address not listed'}</p>
-                      <div className="card-tags">
-                        {!b.websiteExists && <span className="tag tag-warn">No Website</span>}
-                        {b.phone && <span className="tag">📞 Phone</span>}
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Middle/Right: Map container and detailed assessment */}
-        <div className="map-detail-panel">
-          <div className="map-view-wrapper">
-            <div ref={mapContainerRef} className="interactive-leaflet-map" id="map"></div>
-          </div>
+        {/* Directory results (Column 1, Row 2) */}
+        <div className="directory-results">
+          <h3>Opportunities ({businesses.length})</h3>
+          
+          {loading ? (
+            <div className="loader-box"><div className="loader"></div></div>
+          ) : businesses.length === 0 ? (
+            <p className="empty-results">
+              {hasSearched ? 'No businesses found in this location.' : 'No leads loaded. Submit a city search to scan raw map data.'}
+            </p>
+          ) : (
+            <div className="results-list">
+              {businesses.map((b) => (
+                <article 
+                  key={b.id} 
+                  className={`business-item-card ${selectedBusiness?.id === b.id ? 'active' : ''}`}
+                  onClick={() => handleSelectBusiness(b)}
+                >
+                  <div className="card-indicator" style={{ background: b.websiteExists ? '#e2f0fd' : '#fff3cd' }}>
+                    {b.websiteExists ? <FiGlobe style={{ color: '#55aee5' }} /> : <FiMapPin style={{ color: '#ffc107' }} />}
+                  </div>
+                  <div className="card-details">
+                    <h4>{b.name}</h4>
+                    <p className="b-cat">{b.category}</p>
+                    <p className="b-addr">📍 {b.address || 'Address not listed'}</p>
+                    <div className="card-tags">
+                      {!b.websiteExists && <span className="tag tag-warn">No Website</span>}
+                      {b.phone && <span className="tag">📞 Phone</span>}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
 
-          {/* Business Detailed Lead Assessment Card */}
+        {/* Map View Wrapper (Column 2, Row 1) */}
+        <div className="map-view-wrapper">
+          <div ref={mapContainerRef} className="interactive-leaflet-map" id="map"></div>
+        </div>
+
+        {/* Assessment Card Wrapper (Column 2, Row 2) */}
+        <div className="assessment-wrapper">
           {selectedBusiness ? (
             <div className="business-assessment-card reveal is-visible">
               <div className="assessment-header">
