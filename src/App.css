@@ -413,8 +413,8 @@ h3 {
 
 .kinetic-caption {
   animation: kineticText 3.8s 660ms ease-in-out infinite both;
-  color: inherit;
-  font-size: clamp(16px, 3.2vw, 28px);
+  color: #000;
+  font-size: clamp(26px, 7vw, 68px);
   font-weight: 500;
   line-height: 1.35;
   margin-top: 24px;
@@ -1797,4 +1797,63 @@ h3 {
 .leaflet-popup-content-wrapper {
   border-radius: 8px;
 }
+
+.dashboard-layout-content {
+  overflow: hidden auto;
+  padding: 22px 28px;
+  height: 100%;
+}
+
+.map-strip-container {
+  border: 1px solid #949494;
+  border-radius: 20px;
+  display: block;
+  height: 200px;
+  margin: 35px 0 17px;
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard-map-banner {
+  width: 100%;
+  height: 100%;
+}
+
+.opportunity-card p.card-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #555;
+  font-size: 14px;
+}
+
+.card-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.card-icon.loc-icon { color: #d9534f; }
+.card-icon.web-icon { color: #55aee5; }
+.card-icon.phone-icon { color: #0275d8; }
+.card-icon.mail-icon { color: #f0ad4e; }
+.card-icon.rec-icon { color: #5bc0de; }
+
+.no-opportunities-placeholder {
+  background: #fdfdfd;
+  border: 1px dashed #ccc;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  color: #777;
+}
+
+.no-opportunities-placeholder a {
+  color: var(--blue);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
 

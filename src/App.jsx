@@ -3,9 +3,19 @@ import { api, authStore } from './lib/api'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import './App.css'
+import { 
+  FiMapPin, 
+  FiGlobe, 
+  FiPhone, 
+  FiMail, 
+  FiStar, 
+  FiSearch, 
+  FiLogOut, 
+  FiSettings, 
+  FiList 
+} from 'react-icons/fi'
 
 const navLinks = ['Home', 'Features', 'Pricing', 'How It Works', 'FAQ']
-
 
 function Logo({ light = false, src }) {
   return (
@@ -147,42 +157,6 @@ function ForgotPasswordPage() {
   )
 }
 
-function DiscoverPage() {
-  return (
-    <SimplePage
-      eyebrow="DISCOVER"
-      title="Discover Leads"
-      body="Search by location, industry, and digital opportunity to find businesses that are ready for a better online presence."
-    >
-      <div className="simple-grid simple-grid--features">
-        <article><h2>Location search</h2><p>Find businesses in the city, state, or country you want to target.</p></article>
-        <article><h2>Opportunity signals</h2><p>Prioritize leads missing websites, ordering flows, booking tools, or clear contact paths.</p></article>
-        <article><h2>Outreach prep</h2><p>Review phone, email, and recommendations before sending your next message.</p></article>
-      </div>
-      <Button href="/dashboard">Open Dashboard</Button>
-    </SimplePage>
-  )
-}
-
-function SettingsPage() {
-  return (
-    <SimplePage
-      eyebrow="SETTINGS"
-      title="Workspace Settings"
-      body="Manage your profile preferences and keep your FirstClient workspace tuned for the type of clients you want."
-    >
-      <div className="settings-list">
-        {['Profile details', 'Search preferences', 'Notification settings'].map((item) => (
-          <label key={item}>
-            <span>{item}</span>
-            <input placeholder="Coming soon" disabled />
-          </label>
-        ))}
-      </div>
-    </SimplePage>
-  )
-}
-
 function HomePage() {
   return (
     <main className="home-page">
@@ -280,7 +254,162 @@ function LoginPage() {
   return <ForgotPasswordPage />
 }
 
+function DashboardLayout({ children, activeTab }) {
+  function logout(event) {
+    event.preventDefault()
+    authStore.clear()
+    window.location.href = '/'
+  }
+
+  return (
+    <main className="dashboard-page interactive-dashboard">
+      <aside className="sidebar-nav">
+        <Logo light />
+        <nav>
+          <a href="/dashboard" className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}>
+            <FiList style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Dashboard
+          </a>
+          <a href="/discover" className={`nav-item ${activeTab === 'discover' ? 'active' : ''}`}>
+            <FiSearch style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Discover Leads
+          </a>
+          <a href="/settings" className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`}>
+            <FiSettings style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Settings
+          </a>
+        </nav>
+        <a className="logout" href="/" onClick={logout}>
+          <FiLogOut style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Logout
+        </a>
+      </aside>
+
+      <section className="dashboard-layout-content">
+        {children}
+      </section>
+    </main>
+  )
+}
+
 function DashboardPage() {
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(false)
+  const mapContainerRef = useRef(null)
+  const mapRef = useRef(null)
+  const markersRef = useRef([])
+
+  useEffect(() => {
+    setLoading(true)
+    api('/businesses')
+      .then((businesses) => {
+        setItems(businesses || [])
+      })
+      .catch((err) => {
+        console.error('Failed to fetch businesses:', err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
+
+  // Initialize Map banner
+  useEffect(() => {
+    if (!mapRef.current && mapContainerRef.current) {
+      mapRef.current = L.map(mapContainerRef.current).setView([32.7767, -96.7970], 10)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapRef.current)
+    }
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+    }
+  }, [])
+
+  // Update map banner markers
+  useEffect(() => {
+    if (!mapRef.current) return
+
+    markersRef.current.forEach(m => m.remove())
+    markersRef.current = []
+
+    const latLns = []
+
+    const customPinIcon = L.divIcon({
+      html: `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));">
+          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="#55aee5" stroke="white" stroke-width="1.5"/>
+          <circle cx="12" cy="9" r="3" fill="white"/>
+        </svg>
+      `,
+      className: 'dashboard-map-pin',
+      iconSize: [24, 24],
+      iconAnchor: [12, 24],
+      popupAnchor: [0, -24]
+    })
+
+    items.forEach(b => {
+      if (b.latitude && b.longitude) {
+        const marker = L.marker([b.latitude, b.longitude], { icon: customPinIcon })
+          .addTo(mapRef.current)
+          .bindPopup(`
+            <div style="font-family: sans-serif; font-size: 12px; padding: 2px;">
+              <h5 style="margin: 0 0 4px 0;">${b.name}</h5>
+              <p style="margin: 0; color: #666;">${b.category}</p>
+            </div>
+          `)
+        markersRef.current.push(marker)
+        latLns.push([b.latitude, b.longitude])
+      }
+    })
+
+    if (latLns.length > 0) {
+      const bounds = L.latLngBounds(latLns)
+      mapRef.current.fitBounds(bounds, { padding: [40, 40] })
+    }
+  }, [items])
+
+  return (
+    <DashboardLayout activeTab="dashboard">
+      <div className="dashboard-top">
+        <h1>Welcome Back, Rosemary 👋</h1>
+        <div className="search-pill" onClick={() => window.location.href = '/discover'} style={{ cursor: 'pointer' }}>
+          <FiSearch style={{ marginRight: '8px' }} /> <span>Search Businesses...</span>
+        </div>
+        <img src="/profile-pic.png" alt="Rosemary" />
+      </div>
+
+      <div className="map-strip-container">
+        <div ref={mapContainerRef} className="dashboard-map-banner" id="map"></div>
+      </div>
+
+      <h2>Opportunities</h2>
+      
+      {loading ? (
+        <div className="loader-box"><div className="loader"></div></div>
+      ) : items.length === 0 ? (
+        <div className="no-opportunities-placeholder">
+          <p>No businesses found. Head over to the <a href="/discover">Discover Leads</a> tab to perform your first search.</p>
+        </div>
+      ) : (
+        <div className="opportunity-grid">
+          {items.map((item) => (
+            <article className="opportunity-card" key={item.id}>
+              <h3>{item.name}</h3>
+              <p className="card-item"><FiMapPin className="card-icon loc-icon" /> {item.address || 'Texas'}</p>
+              <p className="card-item"><FiGlobe className="card-icon web-icon" /> {item.website || 'No Website'}</p>
+              <p className="card-item"><FiPhone className="card-icon phone-icon" /> {item.phone || '+1 xxx xxx xxx'}</p>
+              <p className="card-item"><FiMail className="card-icon mail-icon" /> {item.email || 'hello@email.com'}</p>
+              <p className="card-item"><FiStar className="card-icon rec-icon" /> {item.websiteExists ? 'Food Ordering Web.' : 'Restaurant Website'}</p>
+            </article>
+          ))}
+        </div>
+      )}
+    </DashboardLayout>
+  )
+}
+
+function DiscoverPage() {
   const [city, setCity] = useState('London')
   const [country, setCountry] = useState('United Kingdom')
   const [filter, setFilter] = useState('restaurants')
@@ -297,12 +426,10 @@ function DashboardPage() {
   const mapRef = useRef(null)
   const markersRef = useRef([])
 
-  // Trigger search on mount (default London search)
   useEffect(() => {
     handleSearch()
   }, [])
 
-  // Initialize map once
   useEffect(() => {
     if (!mapRef.current && mapContainerRef.current) {
       mapRef.current = L.map(mapContainerRef.current).setView([51.505, -0.09], 13)
@@ -319,11 +446,9 @@ function DashboardPage() {
     }
   }, [])
 
-  // Update map markers when businesses list updates
   useEffect(() => {
     if (!mapRef.current) return
 
-    // Clear old markers
     markersRef.current.forEach(m => m.remove())
     markersRef.current = []
 
@@ -331,7 +456,6 @@ function DashboardPage() {
 
     const latLns = []
 
-    // Custom SVG Pin Icon
     const customPinIcon = L.divIcon({
       html: `
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));">
@@ -380,7 +504,6 @@ function DashboardPage() {
     }
   }, [businesses])
 
-  // Perform search
   const handleSearch = (e) => {
     if (e) e.preventDefault()
     if (!city.trim() || !country.trim()) {
@@ -406,21 +529,16 @@ function DashboardPage() {
       })
   }
 
-  // Select a business
   const handleSelectBusiness = (business) => {
     setSelectedBusiness(business)
     setRecommendation(null)
-    
-    // Track viewed business in background
     api(`/business/${business.id}`).catch(() => {})
 
-    // Center map on the selected pin
     if (mapRef.current && business.latitude && business.longitude) {
       mapRef.current.setView([business.latitude, business.longitude], 16)
     }
   }
 
-  // Fetch AI Recommendation Assessment
   const handleGetRecommendation = () => {
     if (!selectedBusiness) return
     setRecLoading(true)
@@ -441,14 +559,12 @@ function DashboardPage() {
       })
   }
 
-  // Handle Clipboard Copy & Analytics Tracking
   const handleCopyText = (text, field) => {
     navigator.clipboard.writeText(text)
       .then(() => {
         setCopyFeedback({ field, message: 'Copied!' })
         setTimeout(() => setCopyFeedback({ field: '', message: '' }), 2000)
 
-        // Track copy event in background
         api(`/business/${selectedBusiness.id}/copy`, {
           method: 'POST',
           body: JSON.stringify({ copiedField: field })
@@ -457,25 +573,9 @@ function DashboardPage() {
       .catch((err) => console.error('Failed to copy:', err))
   }
 
-  function logout(event) {
-    event.preventDefault()
-    authStore.clear()
-    window.location.href = '/'
-  }
-
   return (
-    <main className="dashboard-page interactive-dashboard">
-      <aside className="sidebar-nav">
-        <Logo light />
-        <nav>
-          <a href="/dashboard" className="nav-item active">Dashboard</a>
-          <a href="/discover" className="nav-item">Discover Leads</a>
-          <a href="/settings" className="nav-item">Settings</a>
-        </nav>
-        <a className="logout" href="/" onClick={logout}>Logout</a>
-      </aside>
-
-      <section className="dashboard-layout">
+    <DashboardLayout activeTab="discover">
+      <section className="dashboard-layout" style={{ height: '100%' }}>
         {/* Left column: Search and Directory list */}
         <div className="directory-panel">
           <header className="panel-header">
@@ -540,7 +640,7 @@ function DashboardPage() {
                     onClick={() => handleSelectBusiness(b)}
                   >
                     <div className="card-indicator" style={{ background: b.websiteExists ? '#e2f0fd' : '#fff3cd' }}>
-                      {b.websiteExists ? '🌐' : '⚠️'}
+                      {b.websiteExists ? <FiGlobe style={{ color: '#55aee5' }} /> : <FiMapPin style={{ color: '#ffc107' }} />}
                     </div>
                     <div className="card-details">
                       <h4>{b.name}</h4>
@@ -576,7 +676,7 @@ function DashboardPage() {
                 <div className="website-badge-section">
                   {selectedBusiness.websiteExists ? (
                     <a href={selectedBusiness.website} target="_blank" rel="noopener noreferrer" className="badge badge-site">
-                      🌐 Visit Website
+                      <FiGlobe style={{ marginRight: '6px', verticalAlign: 'middle' }} /> Visit Website
                     </a>
                   ) : (
                     <span className="badge badge-no-site">⚠️ Missing Website</span>
@@ -667,7 +767,35 @@ function DashboardPage() {
           )}
         </div>
       </section>
-    </main>
+    </DashboardLayout>
+  )
+}
+
+function SettingsPage() {
+  return (
+    <DashboardLayout activeTab="settings">
+      <div style={{ maxWidth: '600px', padding: '10px 0' }}>
+        <p className="eyebrow" style={{ color: '#969696' }}>SETTINGS</p>
+        <h1 style={{ fontSize: '28px', margin: '14px 0' }}>Workspace Settings</h1>
+        <p style={{ color: '#666', marginBottom: '24px' }}>
+          Manage your profile preferences and keep your FirstClient workspace tuned for the type of clients you want.
+        </p>
+        <div className="settings-list" style={{ display: 'grid', gap: '14px', textAlign: 'left' }}>
+          {['Profile details', 'Search preferences', 'Notification settings'].map((item) => (
+            <label key={item} style={{ display: 'grid', gap: '8px', fontSize: '15px' }}>
+              <span>{item}</span>
+              <input placeholder="Coming soon" disabled style={{ 
+                background: '#fdfdfd', 
+                border: '1px solid #aaa', 
+                borderRadius: '9px', 
+                height: '42px', 
+                padding: '0 14px' 
+              }} />
+            </label>
+          ))}
+        </div>
+      </div>
+    </DashboardLayout>
   )
 }
 
