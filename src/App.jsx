@@ -167,80 +167,130 @@ function HomePage() {
           <Button variant="white">Get Started <span><FaArrowRightLong /></span></Button>
         </div>
         <div className="hero-dashboard motion-float">
-          {/* CSS Dashboard Mockup */}
           <div className="dash-mockup">
-            {/* Browser chrome bar */}
+            {/* Browser chrome */}
             <div className="dash-chrome">
               <span className="dash-dot" style={{background:'#ff5f57'}}/>
               <span className="dash-dot" style={{background:'#febc2e'}}/>
               <span className="dash-dot" style={{background:'#28c840'}}/>
               <div className="dash-url-bar">firstclient.app/discover</div>
             </div>
-            {/* Dashboard body */}
-            <div className="dash-body">
-              {/* Left panel */}
-              <div className="dash-panel">
-                <div className="dash-panel-header">
-                  <div className="dash-pill" style={{width:'60%',height:'10px',background:'rgba(85,174,229,0.5)',borderRadius:'4px'}}/>
-                  <div className="dash-pill" style={{width:'80%',height:'7px',marginTop:'5px',background:'rgba(255,255,255,0.25)',borderRadius:'3px'}}/>
+
+            {/* App shell: sidebar + main */}
+            <div className="dash-shell">
+
+              {/* Blue sidebar */}
+              <aside className="dash-sidebar">
+                {/* Logo */}
+                <div className="dash-logo">
+                  <div style={{width:'22px',height:'22px',borderRadius:'6px',background:'rgba(255,255,255,0.25)'}}/>
+                  <div style={{width:'52px',height:'8px',background:'rgba(255,255,255,0.6)',borderRadius:'3px'}}/>
                 </div>
-                {/* Search inputs */}
-                <div className="dash-input-row">
-                  <div className="dash-input"/>
-                  <div className="dash-input"/>
-                </div>
-                <div className="dash-input" style={{marginTop:'6px',width:'100%'}}/>
-                {/* Filter pills */}
-                <div className="dash-filter-row">
-                  <div className="dash-filter active">🌐 All</div>
-                  <div className="dash-filter">✅ Has Site</div>
-                  <div className="dash-filter">🚫 No Site</div>
-                </div>
-                <div className="dash-search-btn">🔎 Find Opportunities</div>
-                {/* Result cards */}
-                <div className="dash-divider">Opportunities (12)</div>
-                {[
-                  { name:'Bella Cucina', cat:'Restaurants', has: true },
-                  { name:'The Coffee Loft', cat:'Cafes', has: false },
-                  { name:'GreenLeaf Pharmacy', cat:'Pharmacy', has: true },
-                  { name:'Studio Nova', cat:'Salons', has: false },
-                ].map((item, i) => (
-                  <div key={i} className={`dash-card ${i === 1 ? 'dash-card-active' : ''}`}>
-                    <div className="dash-card-icon" style={{background: item.has ? '#e2f0fd' : '#fff3cd'}}>
-                      {item.has ? '🌐' : '📍'}
+                {/* Nav items */}
+                <nav className="dash-sidenav">
+                  {[['🔍','Discover',true],['📊','Analytics',false],['⚙️','Settings',false]].map(([icon,label,active],i)=>(
+                    <div key={i} className={`dash-navitem ${active?'dash-navitem-active':''}`}>
+                      <span>{icon}</span>
+                      <span className="dash-navlabel">{label}</span>
                     </div>
-                    <div className="dash-card-info">
-                      <div className="dash-card-name">{item.name}</div>
-                      <div className="dash-card-cat">{item.cat}</div>
-                    </div>
-                    {!item.has && <div className="dash-card-badge">No Site</div>}
-                  </div>
-                ))}
-              </div>
-              {/* Map area */}
-              <div className="dash-map">
-                <div className="dash-map-bg">
-                  {/* SVG-style map dots */}
-                  {[
-                    {top:'30%',left:'42%',big:true},
-                    {top:'45%',left:'55%',big:false},
-                    {top:'38%',left:'35%',big:false},
-                    {top:'55%',left:'48%',big:false},
-                    {top:'25%',left:'60%',big:false},
-                  ].map((p,i) => (
-                    <div key={i} className={`dash-pin ${p.big?'dash-pin-active':''}`} style={{top:p.top,left:p.left}}/>
                   ))}
-                  {/* Map tile lines */}
-                  <div className="dash-map-grid"/>
-                </div>
-                {/* Info card floating bottom */}
-                <div className="dash-info-card">
-                  <div style={{fontWeight:700,fontSize:'10px',color:'#222'}}>The Coffee Loft</div>
-                  <div style={{fontSize:'9px',color:'#888',marginTop:'2px'}}>☕ Cafe · 0.4km · No Website</div>
-                  <div style={{display:'flex',gap:'4px',marginTop:'6px'}}>
-                    <div className="dash-mini-btn">📞 Call</div>
-                    <div className="dash-mini-btn" style={{background:'rgba(85,174,229,0.12)',color:'#55aee5'}}>⭐ Pitch</div>
+                </nav>
+                <div className="dash-logout">↩ Logout</div>
+              </aside>
+
+              {/* Main area */}
+              <div className="dash-main">
+                {/* 2-col grid: left panel + right map/assessment */}
+                <div className="dash-layout">
+
+                  {/* LEFT: search panel + results */}
+                  <div className="dash-left">
+                    {/* Panel header */}
+                    <div className="dash-panelhead">
+                      <div style={{width:'55%',height:'9px',background:'#222',borderRadius:'3px',fontWeight:700}}/>
+                      <div style={{width:'75%',height:'7px',background:'#ccc',borderRadius:'3px',marginTop:'5px'}}/>
+                    </div>
+                    {/* Search form */}
+                    <div className="dash-form">
+                      <div className="dash-form-row">
+                        <div className="dash-pill-input"/>
+                        <div className="dash-pill-input"/>
+                      </div>
+                      <div className="dash-pill-input" style={{width:'100%'}}/>
+                      {/* Website filter */}
+                      <div className="dash-wfilter">
+                        <div className="dash-wf-btn dash-wf-active">🌐 All</div>
+                        <div className="dash-wf-btn">✅ Has Site</div>
+                        <div className="dash-wf-btn">🚫 No Site</div>
+                      </div>
+                      <div className="dash-submit">🔎 Find Opportunities</div>
+                    </div>
+                    {/* Results list */}
+                    <div className="dash-results">
+                      <div className="dash-results-label">OPPORTUNITIES (12)</div>
+                      {[
+                        {name:'Bella Cucina', cat:'Restaurants', addr:'14 Crown St', has:true, active:false},
+                        {name:'The Coffee Loft', cat:'Cafes', addr:'22 Baker Ave', has:false, active:true},
+                        {name:'GreenLeaf Pharmacy', cat:'Pharmacy', addr:'5 High St', has:true, active:false},
+                        {name:'Studio Nova', cat:'Salons', addr:'88 King Rd', has:false, active:false},
+                      ].map((b,i)=>(
+                        <div key={i} className={`dash-bcard ${b.active?'dash-bcard-active':''}`}>
+                          <div className="dash-bind" style={{background: b.has?'#e2f0fd':'#fff3cd'}}>
+                            <span style={{fontSize:'9px'}}>{b.has?'🌐':'📍'}</span>
+                          </div>
+                          <div style={{flex:1,overflow:'hidden'}}>
+                            <div className="dash-bname">{b.name}</div>
+                            <div className="dash-bcat">{b.cat}</div>
+                            <div className="dash-baddr">📍 {b.addr}</div>
+                          </div>
+                          {!b.has && <div className="dash-badge">No Site</div>}
+                        </div>
+                      ))}
+                    </div>
                   </div>
+
+                  {/* RIGHT: map + assessment */}
+                  <div className="dash-right">
+                    {/* Map */}
+                    <div className="dash-map">
+                      <div className="dash-map-bg">
+                        <div className="dash-map-grid"/>
+                        {[
+                          {top:'28%',left:'40%',active:false},{top:'44%',left:'56%',active:true},
+                          {top:'36%',left:'33%',active:false},{top:'58%',left:'50%',active:false},
+                          {top:'22%',left:'62%',active:false},{top:'50%',left:'38%',active:false},
+                        ].map((p,i)=>(
+                          <div key={i} className={`dash-pin ${p.active?'dash-pin-active':''}`} style={{top:p.top,left:p.left}}/>
+                        ))}
+                        {/* Leaflet-style attribution */}
+                        <div className="dash-attrib">© OpenStreetMap</div>
+                      </div>
+                    </div>
+
+                    {/* AI Assessment panel */}
+                    <div className="dash-assess">
+                      <div className="dash-assess-head">
+                        <div>
+                          <div style={{width:'70%',height:'9px',background:'#222',borderRadius:'3px'}}/>
+                          <div style={{width:'50%',height:'7px',background:'#aaa',borderRadius:'3px',marginTop:'5px'}}/>
+                        </div>
+                        <div className="dash-assess-badge">No Website</div>
+                      </div>
+                      <div className="dash-assess-row">
+                        <div className="dash-assess-chip" style={{background:'#fff3cd',color:'#b07d00'}}>⚠️ No Website</div>
+                        <div className="dash-assess-chip" style={{background:'#d4edda',color:'#1a7a3a'}}>✅ Has Phone</div>
+                        <div className="dash-assess-chip" style={{background:'#f4f4f4',color:'#888'}}>📍 Listed</div>
+                      </div>
+                      <div className="dash-assess-text"/>
+                      <div className="dash-assess-text" style={{width:'80%'}}/>
+                      <div className="dash-assess-actions">
+                        <div className="dash-action-btn">📞 Copy Phone</div>
+                        <div className="dash-action-btn">🗺️ Open OSM</div>
+                        <div className="dash-action-btn dash-action-primary">⭐ Pitch AI</div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
