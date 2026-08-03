@@ -275,10 +275,173 @@ function DashboardLayout({ children }) {
   )
 }
 
+const COUNTRY_CITIES = {
+  'United States': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Dallas', 'Miami'],
+  'Canada': ['Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa', 'Edmonton'],
+  'United Kingdom': ['London', 'Manchester', 'Birmingham', 'Leeds', 'Glasgow', 'Liverpool'],
+  'Nigeria': ['Lagos', 'Abuja', 'Enugu', 'Port Harcourt', 'Kano', 'Ibadan'],
+  'South Africa': ['Johannesburg', 'Cape Town', 'Durban', 'Pretoria', 'Port Elizabeth', 'Bloemfontein'],
+  'Australia': ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Canberra'],
+  'Germany': ['Berlin', 'Munich', 'Frankfurt', 'Hamburg', 'Cologne', 'Stuttgart'],
+  'France': ['Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice', 'Nantes'],
+  'Italy': ['Rome', 'Milan', 'Naples', 'Turin', 'Palermo', 'Genoa'],
+  'Brazil': ['São Paulo', 'Rio de Janeiro', 'Brasília', 'Salvador', 'Fortaleza', 'Belo Horizonte'],
+  'India': ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata']
+}
+
+const CATEGORIES = [
+  'Restaurants',
+  'Cafes',
+  'Hotels',
+  'Salons',
+  'Barbershops',
+  'Bakeries',
+  'Pharmacies',
+  'Schools',
+  'Hospitals',
+  'Gyms',
+  'Real Estate Agencies',
+  'Supermarkets',
+  'Electronics Stores',
+  'Boutiques',
+  'Auto Repair Shops',
+  'Dentists',
+  'Law Firms',
+  'Accounting Firms',
+  'Beauty Spas',
+  'Pet Stores'
+]
+
+function SearchableDropdown({ label, placeholder, options, value, onChange, disabled }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const containerRef = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchTerm('')
+    }
+  }, [isOpen])
+
+  const filteredOptions = options.filter(opt =>
+    opt.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  return (
+    <div className="searchable-dropdown" ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+      <span className="dropdown-label" style={{ display: 'block', marginBottom: '6px', fontSize: '12px', fontWeight: '600', color: '#555' }}>
+        {label}
+      </span>
+      <input
+        type="text"
+        placeholder={placeholder}
+        value={isOpen ? searchTerm : (value || '')}
+        onChange={(e) => {
+          setSearchTerm(e.target.value)
+          setIsOpen(true)
+        }}
+        onFocus={() => { if (!disabled) setIsOpen(true); }}
+        disabled={disabled}
+        className="dropdown-input"
+        style={{
+          width: '100%',
+          height: '42px',
+          border: '1px solid #e2e2e2',
+          background: disabled ? '#f5f5f5' : '#f4f4f4',
+          borderRadius: '999px',
+          padding: '0 20px',
+          fontSize: '14px',
+          color: '#333',
+          cursor: disabled ? 'not-allowed' : 'pointer'
+        }}
+      />
+      {isOpen && (
+        <ul className="dropdown-list" style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          maxHeight: '200px',
+          overflowY: 'auto',
+          background: '#fff',
+          border: '1px solid #e2e2e2',
+          borderRadius: '12px',
+          marginTop: '6px',
+          padding: '6px 0',
+          listStyle: 'none',
+          zIndex: 1000,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.08)'
+        }}>
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((opt) => (
+              <li
+                key={opt}
+                onClick={() => {
+                  onChange(opt)
+                  setIsOpen(false)
+                }}
+                className={`dropdown-item ${opt === value ? 'selected' : ''}`}
+                style={{
+                  padding: '8px 20px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  color: opt === value ? '#55aee5' : '#333',
+                  background: opt === value ? 'rgba(85, 174, 229, 0.08)' : 'transparent',
+                  fontWeight: opt === value ? '600' : 'normal'
+                }}
+              >
+                {opt}
+              </li>
+            ))
+          ) : (
+            <li style={{ padding: '8px 20px', fontSize: '14px', color: '#999' }}>No results found</li>
+          )}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+function CardSkeleton() {
+  return (
+    <div className="skeleton-card" style={{
+      padding: '14px',
+      border: '1px solid #e2e2e2',
+      borderRadius: '12px',
+      background: '#fff',
+      marginBottom: '12px',
+      display: 'flex',
+      gap: '14px',
+      animation: 'pulse 1.5s infinite ease-in-out'
+    }}>
+      <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#e9e9e9', flexShrink: 0 }} />
+      <div style={{ flex: 1 }}>
+        <div style={{ height: '14px', width: '60%', background: '#e9e9e9', borderRadius: '4px', marginBottom: '8px' }} />
+        <div style={{ height: '11px', width: '30%', background: '#e9e9e9', borderRadius: '4px', marginBottom: '8px' }} />
+        <div style={{ height: '11px', width: '80%', background: '#f4f4f4', borderRadius: '4px', marginBottom: '12px' }} />
+        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+          <div style={{ height: '24px', width: '70px', background: '#e9e9e9', borderRadius: '6px' }} />
+          <div style={{ height: '24px', width: '70px', background: '#e9e9e9', borderRadius: '6px' }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function DiscoverPage() {
   const [city, setCity] = useState('London')
   const [country, setCountry] = useState('United Kingdom')
-  const [filter, setFilter] = useState('restaurants')
+  const [filter, setFilter] = useState('Restaurants')
   const [businesses, setBusinesses] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchError, setSearchError] = useState('')
@@ -287,101 +450,17 @@ function DiscoverPage() {
   const [selectedBusiness, setSelectedBusiness] = useState(null)
   const [recommendation, setRecommendation] = useState(null)
   const [recLoading, setRecLoading] = useState(false)
-  const [copyFeedback, setCopyFeedback] = useState({ field: '', message: '' })
+  const [copyFeedback, setCopyFeedback] = useState({ id: '', field: '', message: '' })
 
   const mapContainerRef = useRef(null)
   const mapRef = useRef(null)
   const markersRef = useRef([])
-
-  useEffect(() => {
-    handleSearch()
-  }, [])
-
-  useEffect(() => {
-    if (!mapRef.current && mapContainerRef.current) {
-      mapRef.current = L.map(mapContainerRef.current).setView([51.505, -0.09], 13)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(mapRef.current)
-    }
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove()
-        mapRef.current = null
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!mapRef.current) return
-
-    markersRef.current.forEach(m => m.remove())
-    markersRef.current = []
-
-    if (businesses.length === 0) return
-
-    const latLns = []
-
-    const customPinIcon = L.divIcon({
-      html: `
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));">
-          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#55aee5"/>
-        </svg>
-      `,
-      className: 'custom-map-pin',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
-    })
-
-    businesses.forEach(b => {
-      if (b.latitude && b.longitude) {
-        const marker = L.marker([b.latitude, b.longitude], { icon: customPinIcon })
-          .addTo(mapRef.current)
-          .bindPopup(`
-            <div style="font-family: sans-serif; padding: 2px;">
-              <h4 style="margin: 0 0 4px 0; color: #202020;">${b.name}</h4>
-              <p style="margin: 0 0 6px 0; font-size: 11px; color: #666;">${b.category}</p>
-              <button id="pop-btn-${b.id}" style="background: #55aee5; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">Assess Lead</button>
-            </div>
-          `)
-        
-        marker.on('popupopen', () => {
-          const btn = document.getElementById(`pop-btn-${b.id}`)
-          if (btn) {
-            btn.onclick = () => {
-              handleSelectBusiness(b)
-            }
-          }
-        })
-        
-        marker.on('click', () => {
-          handleSelectBusiness(b)
-        })
-
-        markersRef.current.push(marker)
-        latLns.push([b.latitude, b.longitude])
-      }
-    })
-
-    if (latLns.length > 0) {
-      const bounds = L.latLngBounds(latLns)
-      mapRef.current.fitBounds(bounds, { padding: [30, 30] })
-    }
-  }, [businesses])
-
-  useEffect(() => {
-    if (mapRef.current) {
-      setTimeout(() => {
-        mapRef.current.invalidateSize()
-      }, 250)
-    }
-  }, [businesses, selectedBusiness])
+  const markerMapRef = useRef(new Map())
+  const searchTimeoutRef = useRef(null)
 
   const handleSearch = (e) => {
     if (e) e.preventDefault()
-    if (!city.trim() || !country.trim()) {
+    if (!city || !country) {
       setSearchError('City and Country are required')
       return
     }
@@ -407,6 +486,124 @@ function DiscoverPage() {
       })
   }
 
+  // Debounced auto-search trigger
+  useEffect(() => {
+    if (!city || !country || !filter) return
+
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+
+    searchTimeoutRef.current = setTimeout(() => {
+      handleSearch()
+    }, 600)
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    }
+  }, [city, country, filter])
+
+  // Immediate search on submit button click
+  const triggerSearch = (e) => {
+    if (e) e.preventDefault()
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    handleSearch()
+  }
+
+  useEffect(() => {
+    if (!mapRef.current && mapContainerRef.current) {
+      mapRef.current = L.map(mapContainerRef.current).setView([51.505, -0.09], 13)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapRef.current)
+    }
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!mapRef.current) return
+
+    markersRef.current.forEach(m => m.remove())
+    markersRef.current = []
+    markerMapRef.current.clear()
+
+    if (businesses.length === 0) return
+
+    const latLns = []
+
+    const customPinIcon = L.divIcon({
+      html: `
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));">
+          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#55aee5"/>
+        </svg>
+      `,
+      className: 'custom-map-pin',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    })
+
+    businesses.forEach(b => {
+      if (b.latitude && b.longitude) {
+        const popupHtml = `
+          <div style="font-family: 'DM Sans', sans-serif; padding: 4px; min-width: 180px;">
+            <h4 style="margin: 0 0 4px 0; color: #202020; font-size: 13px; font-weight: 600;">${b.name}</h4>
+            <p style="margin: 0 0 6px 0; font-size: 11px; color: #9c9c9c;">${b.category}</p>
+            <p style="margin: 0 0 6px 0; font-size: 11px; color: #444;">📍 ${b.address || 'No address'}</p>
+            ${b.phone ? `<p style="margin: 0 0 6px 0; font-size: 11px; color: #444;">📞 ${b.phone}</p>` : ''}
+            ${b.website ? `<p style="margin: 0 0 6px 0; font-size: 11px;"><a href="${b.website}" target="_blank" rel="noopener noreferrer" style="color: #55aee5; text-decoration: underline;">🌐 Website</a></p>` : ''}
+            <button id="pop-rec-btn-${b.id}" style="background: #55aee5; color: white; border: none; padding: 6px 12px; border-radius: 999px; font-size: 11px; cursor: pointer; font-weight: 500; width: 100%; text-align: center; margin-top: 4px;">Get Recommendation</button>
+          </div>
+        `
+
+        const marker = L.marker([b.latitude, b.longitude], { icon: customPinIcon })
+          .addTo(mapRef.current)
+          .bindPopup(popupHtml)
+        
+        marker.on('popupopen', () => {
+          const recBtn = document.getElementById(`pop-rec-btn-${b.id}`)
+          if (recBtn) {
+            recBtn.onclick = (e) => {
+              e.stopPropagation()
+              handleSelectBusiness(b)
+              handleGetRecommendation(b)
+            }
+          }
+          
+          // Scroll corresponding business card into view
+          const cardEl = document.getElementById(`card-${b.id}`)
+          if (cardEl) {
+            cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          }
+        })
+        
+        marker.on('click', () => {
+          handleSelectBusiness(b)
+        })
+
+        markerMapRef.current.set(b.id, marker)
+        latLns.push([b.latitude, b.longitude])
+      }
+    })
+
+    if (latLns.length > 0) {
+      const bounds = L.latLngBounds(latLns)
+      mapRef.current.fitBounds(bounds, { padding: [30, 30] })
+    }
+  }, [businesses])
+
+  useEffect(() => {
+    if (mapRef.current) {
+      setTimeout(() => {
+        mapRef.current.invalidateSize()
+      }, 250)
+    }
+  }, [businesses, selectedBusiness])
+
   const handleSelectBusiness = (business) => {
     setSelectedBusiness(business)
     setRecommendation(null)
@@ -415,16 +612,23 @@ function DiscoverPage() {
     if (mapRef.current && business.latitude && business.longitude) {
       mapRef.current.setView([business.latitude, business.longitude], 16)
     }
+
+    const marker = markerMapRef.current.get(business.id)
+    if (marker && mapRef.current) {
+      marker.openPopup()
+    }
   }
 
-  const handleGetRecommendation = () => {
-    if (!selectedBusiness) return
+  const handleGetRecommendation = (business = selectedBusiness) => {
+    const targetBusiness = business || selectedBusiness
+    if (!targetBusiness) return
+    setSelectedBusiness(targetBusiness)
     setRecLoading(true)
     setRecommendation(null)
 
     api('/recommendations', {
       method: 'POST',
-      body: JSON.stringify({ businessId: selectedBusiness.id })
+      body: JSON.stringify({ businessId: targetBusiness.id })
     })
       .then((data) => {
         setRecommendation(data)
@@ -437,13 +641,13 @@ function DiscoverPage() {
       })
   }
 
-  const handleCopyText = (text, field) => {
+  const handleCopyText = (text, field, businessId) => {
     navigator.clipboard.writeText(text)
       .then(() => {
-        setCopyFeedback({ field, message: 'Copied!' })
-        setTimeout(() => setCopyFeedback({ field: '', message: '' }), 2000)
+        setCopyFeedback({ id: businessId, field, message: 'Copied!' })
+        setTimeout(() => setCopyFeedback({ id: '', field: '', message: '' }), 2000)
 
-        api(`/business/${selectedBusiness.id}/copy`, {
+        api(`/business/${businessId}/copy`, {
           method: 'POST',
           body: JSON.stringify({ copiedField: field })
         }).catch(() => {})
@@ -461,41 +665,39 @@ function DiscoverPage() {
             <p>Uncover digital opportunities near you</p>
           </header>
 
-          <form onSubmit={handleSearch} className="directory-search-form">
+          <form onSubmit={triggerSearch} className="directory-search-form" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div className="form-group-row">
-              <label>
-                <span>City</span>
-                <input 
-                  type="text" 
-                  value={city} 
-                  onChange={(e) => setCity(e.target.value)} 
-                  placeholder="e.g. London" 
-                  required 
-                />
-              </label>
-              <label>
-                <span>Country</span>
-                <input 
-                  type="text" 
-                  value={country} 
-                  onChange={(e) => setCountry(e.target.value)} 
-                  placeholder="e.g. United Kingdom" 
-                  required 
-                />
-              </label>
+              <SearchableDropdown
+                label="Country"
+                placeholder="Search Country..."
+                options={Object.keys(COUNTRY_CITIES)}
+                value={country}
+                onChange={(val) => {
+                  setCountry(val)
+                  setCity('') // Reset city when country changes
+                }}
+              />
+              <SearchableDropdown
+                label="City"
+                placeholder={country ? "Search City..." : "Select country first..."}
+                options={country ? COUNTRY_CITIES[country] || [] : []}
+                value={city}
+                onChange={setCity}
+                disabled={!country}
+              />
             </div>
             
             <div className="form-group">
-              <label>
-                <span>Target Focus</span>
-                <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-                  <option value="restaurants">🍔 Mainly Restaurants & Cafes</option>
-                  <option value="all">🏢 All Nearby Businesses</option>
-                </select>
-              </label>
+              <SearchableDropdown
+                label="Business Category"
+                placeholder="Search Category..."
+                options={CATEGORIES}
+                value={filter}
+                onChange={setFilter}
+              />
             </div>
 
-            <button type="submit" className="search-btn" disabled={loading}>
+            <button type="submit" className="search-btn" disabled={loading} style={{ height: '42px', marginTop: '8px' }}>
               {loading ? 'Searching...' : 'Find Opportunities ⌕'}
             </button>
 
@@ -508,30 +710,78 @@ function DiscoverPage() {
           <h3>Opportunities ({businesses.length})</h3>
           
           {loading ? (
-            <div className="loader-box"><div className="loader"></div></div>
+            <div className="results-list">
+              <CardSkeleton />
+              <CardSkeleton />
+              <CardSkeleton />
+            </div>
           ) : businesses.length === 0 ? (
-            <p className="empty-results">
-              {hasSearched ? 'No businesses found in this location.' : 'No leads loaded. Submit a city search to scan raw map data.'}
-            </p>
+            <div className="empty-results-box" style={{ textAlign: 'center', padding: '40px 20px', color: '#9c9c9c' }}>
+              <span style={{ fontSize: '32px', marginBottom: '12px', display: 'block' }}>🔍</span>
+              <h4>No Leads Found</h4>
+              <p style={{ fontSize: '13px', marginTop: '6px' }}>
+                {hasSearched 
+                  ? 'No businesses found in this location. Try another category.' 
+                  : 'Submit a location search to scan raw map data.'}
+              </p>
+            </div>
           ) : (
             <div className="results-list">
               {businesses.map((b) => (
                 <article 
                   key={b.id} 
+                  id={`card-${b.id}`}
                   className={`business-item-card ${selectedBusiness?.id === b.id ? 'active' : ''}`}
                   onClick={() => handleSelectBusiness(b)}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
                 >
-                  <div className="card-indicator" style={{ background: b.websiteExists ? '#e2f0fd' : '#fff3cd' }}>
-                    {b.websiteExists ? <FiGlobe style={{ color: '#55aee5' }} /> : <FiMapPin style={{ color: '#ffc107' }} />}
-                  </div>
-                  <div className="card-details">
-                    <h4>{b.name}</h4>
-                    <p className="b-cat">{b.category}</p>
-                    <p className="b-addr">📍 {b.address || 'Address not listed'}</p>
-                    <div className="card-tags">
-                      {!b.websiteExists && <span className="tag tag-warn">No Website</span>}
-                      {b.phone && <span className="tag">📞 Phone</span>}
+                  <div style={{ display: 'flex', gap: '14px' }}>
+                    <div className="card-indicator" style={{ background: b.websiteExists ? '#e2f0fd' : '#fff3cd' }}>
+                      {b.websiteExists ? <FiGlobe style={{ color: '#55aee5' }} /> : <FiMapPin style={{ color: '#ffc107' }} />}
                     </div>
+                    <div className="card-details" style={{ flex: 1 }}>
+                      <h4 style={{ margin: '0 0 2px 0' }}>{b.name}</h4>
+                      <p className="b-cat" style={{ margin: '0 0 4px 0' }}>{b.category}</p>
+                      <p className="b-addr" style={{ margin: '0 0 4px 0' }}>📍 {b.address || 'Address not listed'}</p>
+                      {b.distance !== undefined && (
+                        <p className="b-dist" style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>
+                          📐 {b.distance} km from city center
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="card-actions" style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
+                    {b.phone && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleCopyText(b.phone, 'PHONE', b.id); }} 
+                        className="btn-card-action"
+                      >
+                        {copyFeedback.id === b.id && copyFeedback.field === 'PHONE' ? '✓ Copied' : '📞 Copy Phone'}
+                      </button>
+                    )}
+                    {b.website && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleCopyText(b.website, 'WEBSITE', b.id); }} 
+                        className="btn-card-action"
+                      >
+                        {copyFeedback.id === b.id && copyFeedback.field === 'WEBSITE' ? '✓ Copied' : '🌐 Copy Web'}
+                      </button>
+                    )}
+                    <a 
+                      href={b.googleMapsUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      onClick={(e) => e.stopPropagation()} 
+                      className="btn-card-action"
+                    >
+                      🗺️ Open OSM
+                    </a>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleSelectBusiness(b); handleGetRecommendation(b); }} 
+                      className="btn-card-action btn-recommend"
+                    >
+                      ⭐ Pitch AI
+                    </button>
                   </div>
                 </article>
               ))}
@@ -572,11 +822,11 @@ function DiscoverPage() {
                     <div className="copy-action-box">
                       <strong>{selectedBusiness.phone}</strong>
                       <button 
-                        onClick={() => handleCopyText(selectedBusiness.phone, 'PHONE')} 
+                        onClick={() => handleCopyText(selectedBusiness.phone, 'PHONE', selectedBusiness.id)} 
                         className="copy-icon-btn"
                         title="Copy Phone"
                       >
-                        {copyFeedback.field === 'PHONE' ? '✓ Copied' : '🗎 Copy'}
+                        {copyFeedback.id === selectedBusiness.id && copyFeedback.field === 'PHONE' ? '✓ Copied' : '🗎 Copy'}
                       </button>
                     </div>
                   ) : (
@@ -589,11 +839,11 @@ function DiscoverPage() {
                     <div className="copy-action-box">
                       <strong>{selectedBusiness.email}</strong>
                       <button 
-                        onClick={() => handleCopyText(selectedBusiness.email, 'EMAIL')} 
+                        onClick={() => handleCopyText(selectedBusiness.email, 'EMAIL', selectedBusiness.id)} 
                         className="copy-icon-btn"
                         title="Copy Email"
                       >
-                        {copyFeedback.field === 'EMAIL' ? '✓ Copied' : '🗎 Copy'}
+                        {copyFeedback.id === selectedBusiness.id && copyFeedback.field === 'EMAIL' ? '✓ Copied' : '🗎 Copy'}
                       </button>
                     </div>
                   ) : (
@@ -632,7 +882,7 @@ function DiscoverPage() {
                 ) : (
                   <div className="generate-cta-box">
                     <p>Analyze this business's digital gaps and generate recommended freelance pitches.</p>
-                    <button onClick={handleGetRecommendation} className="button button--primary run-rec-btn">
+                    <button onClick={() => handleGetRecommendation(selectedBusiness)} className="button button--primary run-rec-btn">
                       Generate Digital Assessment ⭐
                     </button>
                   </div>

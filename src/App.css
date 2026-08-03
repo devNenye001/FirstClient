@@ -1901,4 +1901,113 @@ h3 {
   text-decoration: underline;
 }
 
+/* Searchable Dropdown Styles */
+.searchable-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.searchable-dropdown .dropdown-input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #e2e2e2;
+  background: #f4f4f4;
+  border-radius: 999px;
+  padding: 0 20px;
+  font: inherit;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.searchable-dropdown .dropdown-input:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(85, 174, 229, 0.15);
+}
+
+.searchable-dropdown .dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  margin-top: 6px;
+  padding: 6px 0;
+  list-style: none;
+  z-index: 1000;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.searchable-dropdown .dropdown-item {
+  padding: 8px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background 0.15s ease;
+}
+
+.searchable-dropdown .dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.searchable-dropdown .dropdown-item.selected {
+  background: rgba(85, 174, 229, 0.08);
+  color: var(--blue);
+  font-weight: 600;
+}
+
+/* Card Skeleton Animation */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+/* Business Card Action Buttons */
+.btn-card-action {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e2e2;
+  background: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  color: #555;
+}
+
+.btn-card-action:hover {
+  background: #f8f9fa;
+  border-color: #ccc;
+  color: #333;
+}
+
+.btn-card-action.btn-recommend {
+  background: rgba(85, 174, 229, 0.06);
+  border-color: rgba(85, 174, 229, 0.2);
+  color: var(--blue);
+}
+
+.btn-card-action.btn-recommend:hover {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+
+
 
