@@ -12,6 +12,7 @@ import {
   FiSearch, 
   FiLogOut 
 } from 'react-icons/fi'
+import { FaArrowRightLong } from "react-icons/fa6";
 
 const navLinks = ['Home', 'Features', 'How It Works', 'FAQ']
 
@@ -163,9 +164,88 @@ function HomePage() {
         <div className="hero-copy motion-rise">
           <h1>Stop Looking for Jobs. Start<br />Finding <span className="borel">Clients</span></h1>
           <p>FirstClient helps freelancers, developers, designers, and agencies uncover real opportunities so you can spend less time searching and more time getting paid.</p>
-          <Button variant="white">Sign Up <span>→</span></Button>
+          <Button variant="white">Get Started <span><FaArrowRightLong /></span></Button>
         </div>
-        <img className="hero-dashboard motion-float" src="/hero-image.png" alt="FirstClient dashboard preview" />
+        <div className="hero-dashboard motion-float">
+          {/* CSS Dashboard Mockup */}
+          <div className="dash-mockup">
+            {/* Browser chrome bar */}
+            <div className="dash-chrome">
+              <span className="dash-dot" style={{background:'#ff5f57'}}/>
+              <span className="dash-dot" style={{background:'#febc2e'}}/>
+              <span className="dash-dot" style={{background:'#28c840'}}/>
+              <div className="dash-url-bar">firstclient.app/discover</div>
+            </div>
+            {/* Dashboard body */}
+            <div className="dash-body">
+              {/* Left panel */}
+              <div className="dash-panel">
+                <div className="dash-panel-header">
+                  <div className="dash-pill" style={{width:'60%',height:'10px',background:'rgba(85,174,229,0.5)',borderRadius:'4px'}}/>
+                  <div className="dash-pill" style={{width:'80%',height:'7px',marginTop:'5px',background:'rgba(255,255,255,0.25)',borderRadius:'3px'}}/>
+                </div>
+                {/* Search inputs */}
+                <div className="dash-input-row">
+                  <div className="dash-input"/>
+                  <div className="dash-input"/>
+                </div>
+                <div className="dash-input" style={{marginTop:'6px',width:'100%'}}/>
+                {/* Filter pills */}
+                <div className="dash-filter-row">
+                  <div className="dash-filter active">🌐 All</div>
+                  <div className="dash-filter">✅ Has Site</div>
+                  <div className="dash-filter">🚫 No Site</div>
+                </div>
+                <div className="dash-search-btn">🔎 Find Opportunities</div>
+                {/* Result cards */}
+                <div className="dash-divider">Opportunities (12)</div>
+                {[
+                  { name:'Bella Cucina', cat:'Restaurants', has: true },
+                  { name:'The Coffee Loft', cat:'Cafes', has: false },
+                  { name:'GreenLeaf Pharmacy', cat:'Pharmacy', has: true },
+                  { name:'Studio Nova', cat:'Salons', has: false },
+                ].map((item, i) => (
+                  <div key={i} className={`dash-card ${i === 1 ? 'dash-card-active' : ''}`}>
+                    <div className="dash-card-icon" style={{background: item.has ? '#e2f0fd' : '#fff3cd'}}>
+                      {item.has ? '🌐' : '📍'}
+                    </div>
+                    <div className="dash-card-info">
+                      <div className="dash-card-name">{item.name}</div>
+                      <div className="dash-card-cat">{item.cat}</div>
+                    </div>
+                    {!item.has && <div className="dash-card-badge">No Site</div>}
+                  </div>
+                ))}
+              </div>
+              {/* Map area */}
+              <div className="dash-map">
+                <div className="dash-map-bg">
+                  {/* SVG-style map dots */}
+                  {[
+                    {top:'30%',left:'42%',big:true},
+                    {top:'45%',left:'55%',big:false},
+                    {top:'38%',left:'35%',big:false},
+                    {top:'55%',left:'48%',big:false},
+                    {top:'25%',left:'60%',big:false},
+                  ].map((p,i) => (
+                    <div key={i} className={`dash-pin ${p.big?'dash-pin-active':''}`} style={{top:p.top,left:p.left}}/>
+                  ))}
+                  {/* Map tile lines */}
+                  <div className="dash-map-grid"/>
+                </div>
+                {/* Info card floating bottom */}
+                <div className="dash-info-card">
+                  <div style={{fontWeight:700,fontSize:'10px',color:'#222'}}>The Coffee Loft</div>
+                  <div style={{fontSize:'9px',color:'#888',marginTop:'2px'}}>☕ Cafe · 0.4km · No Website</div>
+                  <div style={{display:'flex',gap:'4px',marginTop:'6px'}}>
+                    <div className="dash-mini-btn">📞 Call</div>
+                    <div className="dash-mini-btn" style={{background:'rgba(85,174,229,0.12)',color:'#55aee5'}}>⭐ Pitch</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="section map-section reveal">
