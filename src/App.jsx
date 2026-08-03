@@ -13,7 +13,7 @@ import {
   FiLogOut 
 } from 'react-icons/fi'
 
-const navLinks = ['Home', 'Features', 'Pricing', 'How It Works', 'FAQ']
+const navLinks = ['Home', 'Features', 'How It Works', 'FAQ']
 
 function Logo({ light = false, src }) {
   return (
@@ -451,6 +451,7 @@ function DiscoverPage() {
   const [recommendation, setRecommendation] = useState(null)
   const [recLoading, setRecLoading] = useState(false)
   const [copyFeedback, setCopyFeedback] = useState({ id: '', field: '', message: '' })
+  const [websiteFilter, setWebsiteFilter] = useState('all') // 'all' | 'with' | 'without'
 
   const mapContainerRef = useRef(null)
   const mapRef = useRef(null)
@@ -662,7 +663,7 @@ function DiscoverPage() {
         <div className="directory-panel">
           <header className="panel-header">
             <h2>Lead Finder</h2>
-            <p>Uncover digital opportunities near you</p>
+            <p>Uncover digital opportunities near you and globally</p>
           </header>
 
           <form onSubmit={triggerSearch} className="directory-search-form" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -697,8 +698,36 @@ function DiscoverPage() {
               />
             </div>
 
+            <div className="form-group">
+              <label style={{ fontSize: '11px', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', display: 'block' }}>Website Filter</label>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {[['all', '🌐 All'], ['with', '✅ Has Website'], ['without', '🚫 No Website']].map(([val, label]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setWebsiteFilter(val)}
+                    style={{
+                      flex: 1,
+                      padding: '7px 6px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      borderRadius: '8px',
+                      border: '1.5px solid',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      borderColor: websiteFilter === val ? 'var(--blue)' : '#e2e2e2',
+                      background: websiteFilter === val ? 'rgba(85,174,229,0.1)' : '#fff',
+                      color: websiteFilter === val ? 'var(--blue)' : '#666',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button type="submit" className="search-btn" disabled={loading} style={{ height: '42px', marginTop: '8px' }}>
-              {loading ? 'Searching...' : 'Find Opportunities ⌕'}
+              {loading ? 'Searching...' : '🔎 Find Opportunities'}
             </button>
 
             {searchError && <p className="search-error">{searchError}</p>}
@@ -707,7 +736,14 @@ function DiscoverPage() {
 
         {/* Directory results (Column 1, Row 2) */}
         <div className="directory-results">
-          <h3>Opportunities ({businesses.length})</h3>
+          {(() => {
+            const filtered = businesses.filter(b => {
+              if (websiteFilter === 'with') return b.websiteExists
+              if (websiteFilter === 'without') return !b.websiteExists
+              return true
+            })
+            return <h3>Opportunities ({filtered.length}{filtered.length !== businesses.length ? ` of ${businesses.length}` : ''})</h3>
+          })()}
           
           {loading ? (
             <div className="results-list">
@@ -727,7 +763,13 @@ function DiscoverPage() {
             </div>
           ) : (
             <div className="results-list">
-              {businesses.map((b) => (
+              {businesses
+                .filter(b => {
+                  if (websiteFilter === 'with') return b.websiteExists
+                  if (websiteFilter === 'without') return !b.websiteExists
+                  return true
+                })
+                .map((b) => (
                 <article 
                   key={b.id} 
                   id={`card-${b.id}`}
